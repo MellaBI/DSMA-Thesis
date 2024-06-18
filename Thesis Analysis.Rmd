@@ -1,0 +1,645 @@
+---
+title: "Analysis Thesis"
+author: "Melvin Zhang"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+#Setting Working Directory
+setwd("/Users/melvinzhang/Documents/DSMA ESE/THESIS")
+
+#Libraries
+library(stargazer)
+library(tidyverse)
+library(ggplot2)
+library(AER)
+library(tseries)
+library(moments)
+
+#Loading CoinGecko Data
+gecko_controls <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/controls_gecko.Rdata")
+gecko_ai <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/gecko_ai.Rdata")
+
+#Set 1 and 0 for AI and non-AI in both dataframes
+gecko_controls$ai <- 0
+gecko_ai$ai <- 1
+
+#Set 1 for treated and 0 for not
+gecko_controls$gemini <- 0
+gecko_ai$gemini <- ifelse(gecko_ai$date > "2023-12-06" & gecko_ai$ai == 1, 1, 0)
+
+#Set 1 for bullish markets and 0 for bearish markets (March 14th, 2024)
+gecko_controls$bull <- ifelse(gecko_controls$date <= "2024-03-14", 0, 1)
+gecko_ai$bull <- ifelse(gecko_ai$date <= "2024-03-14", 0, 1)
+
+#Merge both to create one panel data set
+gecko_all <- rbind(gecko_ai, gecko_controls)
+
+#Loading CoinmarketCap Data
+coin_controls <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/all_coin_control.Rdata")
+coin_ai <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/all_coin_ai.Rdata")
+#Removing redundant columns
+coin_ai <- coin_ai[, -c(2,3,4,5,6,7,8)]
+coin_ai <- coin_ai[, -5]
+
+coin_controls <- coin_controls[, -c(2,3,4,5,6,7,8,12)]
+
+#Set 1 and 0 for AI and non-AI in both dataframes
+coin_controls$ai <- 0
+coin_ai$ai <- 1
+
+#Set 1 for Treated and 0 for not
+coin_controls$gemini <- 0
+coin_ai$gemini <- ifelse(coin_ai$date > "2023-12-06", 1, 0)
+
+#Set 1 for bullish markets and 0 for bearish markets (March 14th, 2024)
+coin_controls$bull <- ifelse(coin_controls$date <= "2024-03-14", 0, 1)
+coin_ai$bull <- ifelse(coin_ai$date <= "2024-03-14", 0, 1)
+
+#Merge both to create one panel dataset
+coin_all <- rbind(coin_controls, coin_ai)
+
+#Load SP Indexes
+sp_all <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/all_indexes_sp.Rdata")
+mega_sp <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/large_sp.Rdata")
+large_sp <- readRDS("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/mega_sp.Rdata")
+
+#Set 1 for bullish markets and 0 for bearish markets (March 14th, 2024)
+large_sp$bull <- ifelse(large_sp$date <= "2024-03-14", 0, 1)
+mega_sp$bull <- ifelse(mega_sp$date <= "2024-03-14", 0, 1)
+sp_all$bull <- ifelse(sp_all$date <= "2024-03-14", 0, 1)
+
+#Set Date for Indexes
+large_sp$date <- dmy(large_sp$date)
+mega_sp$date <- dmy(mega_sp$date)
+sp_all$date <- dmy(sp_all$date)
+
+
+#Filter for periods for specific time frame (Oct. to March 2024)
+large_sp <- large_sp %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+mega_sp <- mega_sp %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+sp_all <- sp_all %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+```
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+
+#Descriptive Statistics Gecko AI
+stargazer(data= gecko_ai["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics Coinmarketcap AI
+stargazer(data= coin_ai["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics Gecko Controls
+stargazer(data= gecko_controls["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics Coinmarketcap Controls
+stargazer(data= coin_controls["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics LargeCap
+stargazer(data= large_sp["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics Megacap
+stargazer(data= mega_sp["log_returns"], type="latex", column.sep.width="20pt")
+
+#Descriptive Statistics of all data
+stargazer(data= gecko_controls, type="latex", column.sep.width="20pt")
+stargazer(data= gecko_ai, type="latex", column.sep.width="20pt")
+stargazer(data= coin_controls, type="latex", column.sep.width="20pt")
+stargazer(data= coin_ai, type="latex", column.sep.width="20pt")
+stargazer(data= sp_all, type="latex", column.sep.width="20pt")
+
+
+
+
+
+```
+
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+#Normality Tests
+
+#Gecko AI
+lm1 <- lm(log_returns ~., data=gecko_ai)
+residuals <- lm1$residuals
+gecko_gg_ai <- ggplot(data=data.frame(residuals), aes(sample=residuals)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "CoinGecko AI", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals)
+skewness(gecko_ai$log_returns)
+hist_gecko_ai <- ggplot(data = gecko_ai, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "CoinGecko AI", x = "Log Returns", y="Count")
+
+#Coin AI
+lm2 <- lm(log_returns ~., data=coin_ai)
+residuals2 <- lm2$residuals
+coin_gg_ai <- ggplot(data=data.frame(residuals2), aes(sample=residuals2)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "CoinMarketCap AI", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals2)
+skewness(coin_ai$log_returns)
+hist_coin_ai <- ggplot(data = coin_ai, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "CoinMarket AI", x = "Log Returns", y="Count") 
+
+
+#SP LargeCap
+lm3 <- lm(log_returns ~ mega + capindex, data=large_sp)
+residuals3 <- lm3$residuals
+large_gg <- ggplot(data=data.frame(residuals3), aes(sample=residuals3)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "S&P Extra Large Capitalization", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals3)
+skewness(large_sp$log_returns)
+hist_large <- ggplot(data = large_sp, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "S&P Extra Large", x = "Log Returns", y="Count") 
+
+
+#SP Megacap
+lm5 <- lm(log_returns ~ mega + capindex, data=mega_sp)
+residuals5 <- lm5$residuals
+mega_gg <- ggplot(data=data.frame(residuals5), aes(sample=residuals5)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "S&P Mega Large Capitalization", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals5)
+skewness(mega_sp$log_returns)
+hist_mega <- ggplot(data = mega_sp, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "S&P Mega Large", x = "Log Returns", y="Count") 
+
+#Exclude Ticker
+gecko_control_no_ticker <- gecko_controls[, -6]
+  
+#Gecko Controls
+lm6 <- lm(log_returns ~ ., data=gecko_control_no_ticker)
+residuals6 <- lm6$residuals
+gecko_gg_c <- ggplot(data=data.frame(residuals6), aes(sample=residuals6)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "CoinGecko Controls", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals6)
+skewness(gecko_control_no_ticker)
+hist_gecko_controls <- ggplot(data = gecko_controls, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "CoinGecko Controls", x = "Log Returns", y="Count")
+
+#Coinmarketcap Controls
+lm7 <- lm(log_returns ~., data=coin_controls)
+residuals7 <- lm7$residuals
+coin_gg_c <- ggplot(data=data.frame(residuals7), aes(sample=residuals7)) +
+  stat_qq(distribution = qnorm) +
+  stat_qq_line(distribution=qnorm, color="red") +
+  labs(title= "CoinMarket Controls", x="Theoretical Quantities", y = "Sample Quantities")
+
+#Exclude Ticker
+coin_control_no_ticker <- coin_controls[, -6]
+
+#Jarque-Bera Test
+jarque.bera.test(x = residuals7)
+skewness(coin_control_no_ticker)
+hist_coin_control <- ggplot(data = coin_controls, aes(x = log_returns)) +
+  geom_histogram(fill="maroon", color="black") +
+  labs(title = "CoinMarket Controls", x = "Log Returns", y="Count")
+
+#All plots together in one pane
+library(ggpubr)
+
+pdf("qq_normality.pdf")
+ggarrange(gecko_gg_ai, gecko_gg_c, coin_gg_ai, coin_gg_c, large_gg, mega_gg + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E", "F", "G"),
+          ncol = 3, nrow = 2)
+dev.off()
+
+pdf("hist_normality.pdf")
+ggarrange(hist_coin_ai, hist_gecko_ai, hist_coin_control, hist_gecko_controls, hist_large, hist_mega + rremove("x.text"), 
+          labels = c("A", "B", "C", "D", "E", "F", "G"),
+          ncol = 3, nrow = 2)
+dev.off()
+
+
+```
+
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+
+#Analysis
+
+#Rename MarketCap in coinmarketcap
+colnames(coin_all)[colnames(coin_all) == "marketCap"] <- "market_cap"
+
+
+#Lagged Dependent Variable CoinGecko
+# Filter post-treatment data within each group
+gecko_ai_post_treatment_all <- gecko_all[gecko_all$gemini_exposure == 1, ]
+
+#Lagged variable creation Treatment
+gecko_ai_post_treatment_all <- gecko_ai_post_treatment_all %>%
+  arrange(date) 
+# Lag log_returns by one period Treatment
+gecko_ai_post_treatment_all <- gecko_ai_post_treatment_all %>%
+  mutate(lagged_log_returns = lag(log_returns, n = 1))
+
+#OLS CoinGecko LDV
+lm_gecko_all_treatment <- lm(log_returns ~ date + market_cap + bull + lagged_log_returns + gemini, data=gecko_ai_post_treatment_all)
+summary(lm_gecko_all_treatment)
+
+
+#Lagged Dependent Variable CoinMarketCap
+# Filter post-treatment data within each group
+coin_ai_post_treatment_all <- coin_all[coin_all$gemini_exposure == 1, ]
+
+#Lagged variable creation Treatment
+coin_ai_post_treatment_all <- coin_ai_post_treatment_all %>%
+  arrange(date) 
+# Lag log_returns by one period Treatment
+coin_ai_post_treatment_all <- coin_ai_post_treatment_all %>%
+  mutate(lagged_log_returns = lag(log_returns, n = 1))
+
+#OLS CMC LDV
+lm_coin_all_treatment <- lm(log_returns ~ date + market_cap + bull + lagged_log_returns + gemini, data=coin_ai_post_treatment_all)
+summary(lm_coin_all_treatment)
+
+
+#Table Generation LaTex
+stargazer(lm_gecko_all_treatment, lm_coin_all_treatment, title="Regression Results",
+align=TRUE, dep.var.labels=c("Overall Rating","High Rating"),
+omit.stat=c("LL","ser","f"), no.space=TRUE)
+
+
+
+#Lagged variable creation Indexes
+sp_all <- sp_all %>%
+  arrange(date) 
+# Lag log_returns by one period Indexes
+sp_all <- sp_all %>%
+  mutate(lagged_log_returns = lag(log_returns, n = 1))
+#OLS Indexes
+lm_indexes <- lm(log_returns~., data=sp_all)
+summary(lm_indexes)
+
+#Table Generation Indexes
+stargazer(lm_indexes, title="Regression Results S&P Indexes Large and Mega Capitalization for Cryptocurrencies", 
+          align=T, dep.var.labels=c("Date", "Capitalization Index", "Mega", "Bull", "Lagged Log Returns"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+
+```
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+#DID Baseline CoinGecko
+
+#Running DID Estimate Interaction Regression CoinGecko
+did_long <- lm(log_returns ~ ai + gemini_exposure + gemini_exposure*ai, data = gecko_all)
+summary(did_long)
+
+didreg_interaction_gecko = lm(log_returns ~ gemini_exposure*ai + log(total_volume) + gemini, data = gecko_all)
+summary(didreg_interaction_gecko)
+
+stargazer(didreg_interaction_gecko, title="Regression Results S&P Indexes Large and Mega Capitalization for Cryptocurrencies", 
+          align=T, dep.var.labels=c("Date", "Capitalization Index", "Mega", "Bull", "Lagged Log Returns"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+#Mean Differences CoinGecko
+differences <- gecko_all %>%
+  group_by(ai, date) %>%
+  summarise(log_returns = mean(log_returns, na.rm = TRUE)) 
+
+# Convert 'ai' to factor if it's not already a factor
+differences$ai <- as.factor(differences$ai)
+
+#Plotting the differences by date and ai or not
+pdf("mean_diff.pdf")
+ggplot(differences, aes(x = date, y = log_returns, fill = ai)) +
+  geom_bar(stat = "identity", color = "black") +
+  labs(
+       x = "Date",
+       y = "Mean Log Returns Differences",
+       fill = "AI") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  scale_fill_manual(values = c("skyblue", "pink"), labels=c("Non-AI", "AI"))
+dev.off()
+
+#Pre treatment Gecko formation
+gecko_pre_treatment <- gecko_all[gecko_all$date < "2023-12-06", ]
+# Convert date to numeric if it's not already
+gecko_pre_treatment$date <- (as.Date(gecko_pre_treatment$date))
+gecko_pre_control <- gecko_pre_treatment[gecko_pre_treatment$ai == 0, ]
+gecko_pre_ai <- gecko_pre_treatment[gecko_pre_treatment$ai == 1, ]
+
+#Trends CoinGecko
+agg_data <- gecko_pre_treatment %>%
+  group_by(ai, date) %>%
+  summarize(mean_outcome = mean(log_returns), .groups = 'drop')
+
+
+pdf("trends_pre_gecko.pdf")
+ggplot(agg_data, aes(x = date, y = mean_outcome, color = as.factor(ai))) +
+  geom_line() +
+  labs(
+       x = "Date",
+       y = "Mean Outcome",
+       color = "Treatment Status") +
+  theme_minimal()
+dev.off()
+
+
+
+# Fit a linear model for the control group
+control_model <- lm(log_returns ~ date, data = gecko_pre_control)
+
+# Summary of the control model
+control_summary <- summary(control_model)
+
+# Fit a linear model for the treatment group
+treatment_model <- lm(log_returns ~ date, data = gecko_pre_ai)
+
+# Summary of the treatment model
+treatment_summary <- summary(treatment_model)
+
+# Extract the trend values (slopes) for both groups
+control_trend <- coef(control_model)["date"]
+treatment_trend <- coef(treatment_model)["date"]
+
+# Fit the combined linear model
+combined_model_pre <- lm(log_returns ~ ai * date, data = gecko_pre_treatment)
+
+# Get the summary of the combined model
+combined_summary_pre <- summary(combined_model_pre)
+
+# Extract coefficients and p-values
+interaction_term_coef <- coef(combined_model_pre)["ai:date"]
+interaction_term_p_value <- combined_summary_pre$coefficients["ai:date", "Pr(>|t|)"]
+
+# Print the interaction term coefficient and p-value
+print(paste("Interaction Term Coefficient (Difference in Trends):", interaction_term_coef))
+print(paste("P-value for Interaction Term:", interaction_term_p_value))
+
+#Running DID Estimator Interaction Regression CoinMarketCap
+did_coinmarketcap <- lm(log_returns ~  ai + gemini_exposure + gemini_exposure*ai, data = coin_all) 
+summary(did_coinmarketcap)
+stargazer(did_coinmarketcap, title="Regression Results S&P Indexes Large and Mega Capitalization for Cryptocurrencies", 
+          align=T, dep.var.labels=c("Date", "Capitalization Index", "Mega", "Bull", "Lagged Log Returns"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+
+#Mean Differences CMC
+differences_coin <- coin_all %>%
+  group_by(ai, date) %>%
+  summarise(log_returns = mean(log_returns, na.rm = TRUE)) 
+
+# Convert 'ai' to factor if it's not already a factor
+differences_coin$ai <- as.factor(differences$ai)
+
+#Plotting the differences by date and ai or not
+pdf("mean_diff_coin.pdf")
+ggplot(differences_coin, aes(x = date, y = log_returns, fill = ai)) +
+  geom_bar(stat = "identity", color = "black") +
+  labs(
+       x = "Date",
+       y = "Mean Log Returns Differences",
+       fill = "AI") +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+  scale_fill_manual(values = c("green", "red"), labels=c("Non-AI", "AI"))
+dev.off()
+
+
+#Pre treatment CMC formation
+coin_pre_treatment <- coin_all[coin_all$date < "2023-12-06", ]
+# Convert date to numeric if it's not already
+coin_pre_treatment$date <- (as.Date(coin_pre_treatment$date))
+coin_pre_control <- coin_pre_treatment[coin_pre_treatment$ai == 0, ]
+coin_pre_ai <- coin_pre_treatment[coin_pre_treatment$ai == 1, ]
+
+#Trends CMC
+agg_data_coin <- coin_pre_treatment %>%
+  group_by(ai, date) %>%
+  summarize(mean_outcome = mean(log_returns), .groups = 'drop')
+
+pdf("trends_pre_coin.pdf")
+ggplot(agg_data_coin, aes(x = date, y = mean_outcome, color = as.factor(ai))) +
+  geom_line() +
+  labs(
+       x = "Date",
+       y = "Mean Outcome",
+       color = "Treatment Status") +
+  theme_minimal()
+dev.off()
+
+# Fit a linear model for the control group
+control_model <- lm(log_returns ~ date, data = coin_pre_control)
+
+# Summary of the control model
+control_summary <- summary(control_model)
+
+# Fit a linear model for the treatment group
+treatment_model <- lm(log_returns ~ date, data = coin_pre_control)
+
+# Summary of the treatment model
+treatment_summary <- summary(treatment_model)
+
+# Extract the trend values (slopes) for both groups
+control_trend <- coef(control_model)["date"]
+treatment_trend <- coef(treatment_model)["date"]
+
+# Fit the combined linear model
+combined_model_pre <- lm(log_returns ~ ai * date, data = coin_pre_treatment)
+
+# Get the summary of the combined model
+combined_summary_pre <- summary(combined_model_pre)
+
+# Extract coefficients and p-values
+interaction_term_coef <- coef(combined_model_pre)["ai:date"]
+interaction_term_p_value <- combined_summary_pre$coefficients["ai:date", "Pr(>|t|)"]
+
+# Print the interaction term coefficient and p-value
+print(paste("Interaction Term Coefficient (Difference in Trends):", interaction_term_coef))
+print(paste("P-value for Interaction Term:", interaction_term_p_value))
+
+
+```
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+
+library(devtools)
+library(synthdid)
+
+#SDID, DID AND SC for CoinGecko
+estimators = list(did=did_estimate,
+                  sc=sc_estimate,
+                  sdid=synthdid_estimate)
+str(synthdid_estimate)
+
+#Subset Gecko for Synthdid
+gecko_all_synthdid2 <- gecko_all[, c("ticker", "date", "gemini", "log_returns")]
+
+setup <- panel.matrices(gecko_all_synthdid2, treatment=3, outcome=4, time=2, unit=1)
+
+estimates <- lapply(estimators, function(estimator) { estimator(setup$Y,
+                                                               setup$N0, setup$T0) } )
+
+str(sc_estimate)
+str(did_estimate)
+
+# Apply the estimators
+estimates <- lapply(estimators, function(estimator) {
+  estimator(setup$Y, setup$N0, setup$T0)
+})
+
+# Check structure of the estimate objects
+str(estimates$sc)
+str(estimates$did)
+
+# Extract standard errors
+standard.errors <- mapply(function(estimate, name) {
+  set.seed(12345)
+  if(name == "mc") {
+    mc_placebo_se(setup$Y, setup$N0, setup$T0)
+  } else {
+    sqrt(vcov(estimate, method = "jackknife"))
+  }
+}, estimates, names(estimators), SIMPLIFY = FALSE)
+
+# Convert the list to a data frame for better readability
+standard.errors_df <- do.call(rbind, standard.errors)
+head(standard.errors_df)
+stargazer(standard.errors_df, align=T, dep.var.labels=c("Difference-In-Difference", "Synthetic Control", "Synthetic Differen-In-Difference"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+#Output Table
+coingecko_table_output = rbind(unlist(estimates), unlist(standard.errors))
+rownames(coingecko_table_output) = c('Estimate', 'Standard Error')
+colnames(coingecko_table_output) = toupper(names(estimators))
+coingecko_final_output <- round(coingecko_table_output, digits=3)
+
+stargazer(coingecko_final_output, align=T, dep.var.labels=c("Difference-In-Difference", "Synthetic Control", "Synthetic Differen-In-Difference"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+
+#Visualization
+pdf("gecko_trend_sdid.pdf")
+synthdid_plot(estimates[1:3], facet.vertical=FALSE,
+              control.name='control', treated.name='gemini',
+              lambda.comparable=TRUE, se.method = 'none',
+              trajectory.linetype = 1, line.width=.75, effect.curvature=-.4,
+              trajectory.alpha=.7, effect.alpha=.7,
+              diagram.alpha=1, onset.alpha=.7) +
+  theme(legend.position=c(.26,.07), legend.direction='horizontal',
+        legend.key=element_blank(), legend.background=element_blank(),
+        strip.background=element_blank(), strip.text.x = element_blank())
+dev.off()
+
+
+#Dot_plot
+pdf("gecko_sdid_dot.pdf")
+synthdid_units_plot(rev(estimates[1:3]), se.method='none') +
+  theme(
+    legend.background = element_blank(), 
+    legend.title = element_blank(),
+    legend.direction = 'horizontal', 
+    legend.position = c(.17, .07),
+    strip.background = element_blank(), 
+    strip.text.x = element_blank(),
+    axis.text.x = element_text(size = 6, angle = 90, hjust = 1))
+
+dev.off()
+
+```
+
+
+```{r echo=F, error=F, message=F, results='asis', verbose=T}
+#SDID, DID AND SC for CoinMarketCap
+estimators2 = list(did=did_estimate,
+                  sc=sc_estimate,
+                  sdid=synthdid_estimate)
+str(synthdid_estimate)
+
+#Subset Gecko for Synthdid
+coin_all_sdid <- coin_all[, c("ticker", "date", "gemini", "log_returns")]
+
+setup2 <- panel.matrices(coin_all_sdid, treatment=3, outcome=4, time=2, unit=1)
+
+estimates2 <- lapply(estimators2, function(estimator) { estimator(setup2$Y,
+                                                               setup2$N0, setup2$T0) } )
+
+# Check structure of the estimate objects
+str(estimates2$sc)
+str(estimates2$did)
+
+# Extract standard errors
+standard.errors2 <- mapply(function(estimate, name) {
+  set.seed(12345)
+  if(name == "mc") {
+    mc_placebo_se(setup2$Y, setup2$N0, setup2$T0)
+  } else {
+    sqrt(vcov(estimate, method = "bootstrap"))
+  }
+}, estimates2, names(estimators2), SIMPLIFY = FALSE)
+
+# Convert the list to a data frame for better readability
+standard.errors_df <- do.call(rbind, standard.errors2)
+head(standard.errors_df)
+
+#Output Table CMC
+cmc_table_output = rbind(unlist(estimates2), unlist(standard.errors2))
+rownames(cmc_table_output) = c('Estimate', 'Standard Error')
+colnames(cmc_table_output) = toupper(names(estimators2))
+cmc_final_output <- round(cmc_table_output, digits=3)
+
+stargazer(cmc_final_output, align=T, dep.var.labels=c("Difference-In-Difference", "Synthetic Control", "Synthetic Differen-In-Difference"), omit.stat=c("LL", "ser", "f"), no.space=T)
+
+#Visualization
+pdf("cmc_trend_sdid.pdf")
+synthdid_plot(estimates2[1:3], facet.vertical=FALSE,
+              control.name='control', treated.name='gemini',
+              lambda.comparable=TRUE, se.method = 'none',
+              trajectory.linetype = 1, line.width=.75, effect.curvature=-.4,
+              trajectory.alpha=.7, effect.alpha=.7,
+              diagram.alpha=1, onset.alpha=.7) +
+  theme(legend.position=c(.26,.07), legend.direction='horizontal',
+        legend.key=element_blank(), legend.background=element_blank(),
+        strip.background=element_blank(), strip.text.x = element_blank())
+dev.off()
+
+pdf("dot_plot_cmc.pdf")
+#Dot_plot
+synthdid_units_plot(rev(estimates2[1:3]), se.method='none') +
+  theme(legend.background=element_blank(), legend.title = element_blank(),
+        legend.direction='horizontal', legend.position=c(.17,.07),
+        strip.background=element_blank(), strip.text.x = element_blank())
+dev.off()
+
+pdf("dot_plot_cmc.pdf")
+synthdid_units_plot(rev(estimates2[1:3]), se.method='none') +
+  theme(
+    legend.background = element_blank(),
+    legend.title = element_blank(),
+    legend.direction = 'horizontal',
+    legend.position = c(.17, .07),
+    strip.background = element_blank(),
+    strip.text.x = element_blank(),
+    axis.text.x = element_text(size = 3) # Adjust the size as needed
+  )
+dev.off()
+
+
+
+```
