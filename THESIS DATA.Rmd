@@ -1,0 +1,3513 @@
+---
+title: "Thesis"
+author: "Melvin Zhang"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+#Dataset creation thesis DSMA
+
+#Setting working directory
+setwd("/Users/melvinzhang/Documents/DSMA ESE/THESIS")
+getwd()
+
+#Libraries
+library(lubridate)
+library(tidyverse)
+library(rvest)
+
+```
+
+```{r echo=F, error=F, message=F, verbose=T, results='asis'}
+#AI Coins Coingecko
+#RENDER
+rndr <- read.csv("/Users/melvinzhang/Downloads/GAI/rndr-usd-max.csv", sep=",")
+colnames(rndr)[1] <- "date"
+
+#Dates to numeric
+rndr$date <- ymd_hms(rndr$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+rndr <- rndr %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+rndr$log_returns <- log(rndr$price / lag(rndr$price, n=1))
+rndr$log_returns <- ifelse(is.na(rndr$log_returns), 0, rndr$log_returns)
+
+rndr$ticker <- "RNDR"
+
+#TAO
+tao <- read.csv("/Users/melvinzhang/Downloads/GAI/tao-usd-max.csv", sep=",")
+colnames(tao)[1] <- "date"
+
+#Dates to numeric
+tao$date <- ymd_hms(tao$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+tao <- tao %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+tao$log_returns <- log(tao$price / (lag(tao$price, n = 1)))
+tao$log_returns <- ifelse(is.na(tao$log_returns), 0, tao$log_returns)
+
+tao$ticker <- "TAO"
+
+
+#FETCH
+fetch <- read.csv("/Users/melvinzhang/Downloads/GAI/fet-usd-max.csv", sep=",")
+colnames(fetch)[1] <- "date"
+
+#Dates to numeric
+fetch$date <- ymd_hms(fetch$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+fetch <- fetch %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+fetch$log_returns <- log(fetch$price / (lag(fetch$price, n = 1)))
+fetch$log_returns <- ifelse(is.na(fetch$log_returns), 0, fetch$log_returns)
+
+fetch$ticker <- "FETCH"
+
+
+#AGIX
+agix <- read.csv("/Users/melvinzhang/Downloads/GAI/agix-usd-max.csv", sep=",")
+colnames(agix)[1] <- "date"
+
+#Dates to numeric
+agix$date <- ymd_hms(agix$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+agix <- agix %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+agix$log_returns <- log(agix$price / (lag(agix$price, n = 1)))
+agix$log_returns <- ifelse(is.na(agix$log_returns), 0, agix$log_returns)
+
+agix$ticker <- "AGIX"
+
+#grt
+grt <- read.csv("/Users/melvinzhang/Downloads/GAI/agix-usd-max.csv", sep=",")
+colnames(grt)[1] <- "date"
+
+#Dates to numeric
+grt$date <- ymd_hms(grt$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+grt <- grt %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+grt$log_returns <- log(grt$price / (lag(grt$price, n = 1)))
+grt$log_returns <- ifelse(is.na(grt$log_returns), 0, grt$log_returns)
+
+grt$ticker <- "GRT"
+
+#Akt
+akt <- read.csv("/Users/melvinzhang/Downloads/GAI/akt-usd-max.csv", sep=",")
+colnames(akt)[1] <- "date"
+
+#Dates to numeric
+akt$date <- ymd_hms(akt$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+akt <- akt %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+akt$log_returns <- log(akt$price / (lag(akt$price, n = 1)))
+akt$log_returns <- ifelse(is.na(akt$log_returns), 0, akt$log_returns)
+
+akt$ticker <- "AKT"
+
+
+#AIOZ
+aioz1 <- read.csv("/Users/melvinzhang/Downloads/GAI/aioz-usd-max.csv", sep=",")
+colnames(aioz1)[1] <- "date"
+
+#Dates to numeric
+aioz1$date <- ymd_hms(aioz1$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+aioz1 <- aioz1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+aioz1$log_returns <- log(aioz1$price / (lag(aioz1$price, n = 1)))
+aioz1$log_returns <- ifelse(is.na(aioz1$log_returns), 0, aioz1$log_returns)
+
+aioz1$ticker <- "AIOZ"
+
+
+#GLM
+glm <- read.csv("/Users/melvinzhang/Downloads/GAI/glm-usd-max.csv", sep=",")
+colnames(glm)[1] <- "date"
+
+#Dates to numeric
+glm$date <- ymd_hms(glm$date, tz="UTC")
+
+#Filter to get timeframe 2023-10-01 - 2024-03-31
+glm <- glm %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+#Log price calculations
+glm$log_returns <- log(glm$price / (lag(glm$price, n = 1)))
+glm$log_returns <- ifelse(is.na(glm$log_returns), 0, glm$log_returns)
+
+glm$ticker <- "GLM"
+
+
+# Ocean
+ocean <- read.csv("/Users/melvinzhang/Downloads/GAI/ocean-usd-max.csv", sep=",")
+colnames(ocean)[1] <- "date"
+
+# Dates to numeric
+ocean$date <- ymd_hms(ocean$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ocean <- ocean %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ocean$log_returns <- log(ocean$price / (lag(ocean$price, n = 1)))
+ocean$log_returns <- ifelse(is.na(ocean$log_returns), 0, ocean$log_returns)
+
+ocean$ticker <- "OCEAN"
+
+
+# trac
+trac <- read.csv("/Users/melvinzhang/Downloads/GAI/trac-usd-max.csv", sep=",")
+colnames(trac)[1] <- "date"
+
+# Dates to numeric
+trac$date <- ymd_hms(trac$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+trac <- trac %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+trac$log_returns <- log(trac$price / (lag(trac$price, n = 1)))
+trac$log_returns <- ifelse(is.na(trac$log_returns), 0, trac$log_returns)
+
+trac$ticker <- "TRAC"
+
+
+# nos
+nos <- read.csv("/Users/melvinzhang/Downloads/GAI/nos-usd-max.csv", sep=",")
+colnames(nos)[1] <- "date"
+
+# Dates to numeric
+nos$date <- ymd_hms(nos$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+nos <- nos %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+nos$log_returns <- log(nos$price / (lag(nos$price, n = 1)))
+nos$log_returns <- ifelse(is.na(nos$log_returns), 0, nos$log_returns)
+
+nos$ticker <- "NOS"
+
+
+# RSS3
+rss3 <- read.csv("/Users/melvinzhang/Downloads/GAI/rss3-usd-max.csv", sep=",")
+colnames(rss3)[1] <- "date"
+
+# Dates to numeric
+rss3$date <- ymd_hms(rss3$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+rss3 <- rss3 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+rss3$log_returns <- log(rss3$price / (lag(rss3$price, n = 1)))
+rss3$log_returns <- ifelse(is.na(rss3$log_returns), 0, rss3$log_returns)
+
+rss3$ticker <- "RSS3"
+
+
+# 0x0
+X0X <- read.csv("/Users/melvinzhang/Downloads/GAI/0x0-usd-max.csv", sep=",")
+colnames(X0X)[1] <- "date"
+
+# Dates to numeric
+X0X$date <- ymd_hms(X0X$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+X0X <- X0X %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+X0X$log_returns <- log(X0X$price / (lag(X0X$price, n = 1)))
+X0X$log_returns <- ifelse(is.na(X0X$log_returns), 0, X0X$log_returns)
+
+X0X$ticker <- "0x0"
+
+
+# ARKM
+arkm <- read.csv("/Users/melvinzhang/Downloads/GAI/arkm-usd-max.csv", sep=",")
+colnames(arkm)[1] <- "date"
+
+# Dates to numeric
+arkm$date <- ymd_hms(arkm$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+arkm <- arkm %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+arkm$log_returns <- log(arkm$price / (lag(arkm$price, n = 1)))
+arkm$log_returns <- ifelse(is.na(arkm$log_returns), 0, arkm$log_returns)
+
+arkm$ticker <- "ARKM"
+
+
+# PAAL
+paal <- read.csv("/Users/melvinzhang/Downloads/GAI/paal-usd-max.csv", sep=",")
+colnames(paal)[1] <- "date"
+
+# Dates to numeric
+paal$date <- ymd_hms(paal$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+paal <- paal %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+paal$log_returns <- log(paal$price / (lag(paal$price, n = 1)))
+paal$log_returns <- ifelse(is.na(paal$log_returns), 0, paal$log_returns)
+
+paal$ticker <- "PAAL"
+
+
+#ORAI
+orai <- read.csv("/Users/melvinzhang/Downloads/GAI/orai-usd-max.csv", sep=",")
+colnames(orai)[1] <- "date"
+
+# Dates to numeric
+orai$date <- ymd_hms(orai$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+orai <- orai %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+orai$log_returns <- log(orai$price / (lag(orai$price, n = 1)))
+orai$log_returns <- ifelse(is.na(orai$log_returns), 0, orai$log_returns)
+
+orai$ticker <- "ORAI"
+
+
+# AGI
+agi <- read.csv("/Users/melvinzhang/Downloads/GAI/agi-usd-max.csv", sep=",")
+colnames(agi)[1] <- "date"
+
+# Dates to numeric
+agi$date <- ymd_hms(agi$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+agi <- agi %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+agi$ticker <- "AGI"
+
+# Log price calculations
+agi$log_returns <- log(agi$price / (lag(agi$price, n = 1)))
+agi$log_returns <- ifelse(is.na(agi$log_returns), 0, agi$log_returns)
+
+# RLC
+rlc <- read.csv("/Users/melvinzhang/Downloads/GAI/rlc-usd-max.csv", sep=",")
+colnames(rlc)[1] <- "date"
+
+# Dates to numeric
+rlc$date <- ymd_hms(rlc$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+rlc <- rlc %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+rlc$log_returns <- log(rlc$price / (lag(rlc$price, n = 1)))
+rlc$log_returns <- ifelse(is.na(rlc$log_returns), 0, rlc$log_returns)
+
+rlc$ticker <- "RLC"
+
+
+# IQ
+iq <- read.csv("/Users/melvinzhang/Downloads/GAI/iq-usd-max.csv", sep=",")
+colnames(iq)[1] <- "date"
+
+# Dates to numeric
+iq$date <- ymd_hms(iq$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+iq <- iq %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+iq$log_returns <- log(iq$price / (lag(iq$price, n = 1)))
+iq$log_returns <- ifelse(is.na(iq$log_returns), 0, iq$log_returns)
+
+iq$ticker <- "IQ"
+
+
+# POND
+pond <- read.csv("/Users/melvinzhang/Downloads/GAI/pond-usd-max.csv", sep=",")
+colnames(pond)[1] <- "date"
+
+# Dates to numeric
+pond$date <- ymd_hms(pond$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+pond <- pond %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+pond$log_returns <- log(pond$price / (lag(pond$price, n = 1)))
+pond$log_returns <- ifelse(is.na(pond$log_returns), 0, pond$log_returns)
+
+pond$ticker <- "POND"
+agi$ticker <- "AGI"
+
+#NMR
+nmr1 <- read.csv("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/CSV/nmr-usd-max.csv", sep=",")
+colnames(nmr1)[1] <- "date"
+
+# Dates to numeric
+nmr1$date <- ymd_hms(nmr1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+nmr1 <- nmr1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+nmr1$log_returns <- log(nmr1$price / (lag(nmr1$price, n = 1)))
+nmr1$log_returns <- ifelse(is.na(nmr1$log_returns), 0, nmr1$log_returns)
+
+nmr1$ticker <- "NMR"
+
+#CQT
+cqt1 <- read.csv("/Users/melvinzhang/Downloads/cqt-usd-max.csv", sep=",")
+colnames(cqt1)[1] <- "date"
+
+# Dates to numeric
+cqt1$date <- ymd_hms(cqt1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+cqt1 <- cqt1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+cqt1$log_returns <- log(cqt1$price / (lag(cqt1$price, n = 1)))
+cqt1$log_returns <- ifelse(is.na(cqt1$log_returns), 0, cqt1$log_returns)
+
+cqt1$ticker <- "CQT"
+
+#CGPT
+cgpt1 <- read.csv("/Users/melvinzhang/Downloads/cgpt-usd-max.csv", sep=",")
+colnames(cgpt1)[1] <- "date"
+
+# Dates to numeric
+cgpt1$date <- ymd_hms(cgpt1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+cgpt1 <- cgpt1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+cgpt1$log_returns <- log(cgpt1$price / (lag(cgpt1$price, n = 1)))
+cgpt1$log_returns <- ifelse(is.na(cgpt1$log_returns), 0, cgpt1$log_returns)
+
+cgpt1$ticker <- "CGPT"
+
+#CUDOS
+cudos1 <- read.csv("/Users/melvinzhang/Downloads/cudos-usd-max.csv", sep=",")
+colnames(cudos1)[1] <- "date"
+
+# Dates to numeric
+cudos1$date <- ymd_hms(cudos1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+cudos1 <- cudos1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+cudos1$log_returns <- log(cudos1$price / (lag(cudos1$price, n = 1)))
+cudos1$log_returns <- ifelse(is.na(cudos1$log_returns), 0, cudos1$log_returns)
+
+cudos1$ticker <- "CUDOS"
+
+#LMWR
+lmwr1 <- read.csv("/Users/melvinzhang/Downloads/lmwr-usd-max.csv", sep=",")
+colnames(lmwr1)[1] <- "date"
+
+# Dates to numeric
+lmwr1$date <- ymd_hms(lmwr1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+lmwr1 <- lmwr1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+lmwr1$log_returns <- log(lmwr1$price / (lag(lmwr1$price, n = 1)))
+lmwr1$log_returns <- ifelse(is.na(lmwr1$log_returns), 0, lmwr1$log_returns)
+
+lmwr1$ticker <- "LMWR"
+
+#ZIG
+zig1 <- read.csv("/Users/melvinzhang/Downloads/zig-usd-max.csv", sep=",")
+colnames(zig1)[1] <- "date"
+
+# Dates to numeric
+zig1$date <- ymd_hms(zig1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+zig1 <- zig1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+zig1$log_returns <- log(zig1$price / (lag(zig1$price, n = 1)))
+zig1$log_returns <- ifelse(is.na(zig1$log_returns), 0, zig1$log_returns)
+
+zig1$ticker <- "ZIG"
+
+#PHB
+phb1 <- read.csv("/Users/melvinzhang/Downloads/phb-usd-max.csv", sep=",")
+colnames(phb1)[1] <- "date"
+
+# Dates to numeric
+phb1$date <- ymd_hms(phb1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+phb1 <- phb1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+phb1$log_returns <- log(phb1$price / (lag(phb1$price, n = 1)))
+phb1$log_returns <- ifelse(is.na(phb1$log_returns), 0, phb1$log_returns)
+
+phb1$ticker <- "PHB"
+
+#HEART
+heart1 <- read.csv("/Users/melvinzhang/Downloads/heart-usd-max.csv", sep=",")
+colnames(heart1)[1] <- "date"
+
+# Dates to numeric
+heart1$date <- ymd_hms(heart1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+heart1 <- heart1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+heart1$log_returns <- log(heart1$price / (lag(heart1$price, n = 1)))
+heart1$log_returns <- ifelse(is.na(heart1$log_returns), 0, heart1$log_returns)
+
+heart1$ticker <- "HEART"
+
+#AITECH
+aitech1 <- read.csv("/Users/melvinzhang/Downloads/aitech-usd-max.csv", sep=",")
+colnames(aitech1)[1] <- "date"
+
+# Dates to numeric
+aitech1$date <- ymd_hms(aitech1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+aitech1 <- aitech1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+aitech1$log_returns <- log(aitech1$price / (lag(aitech1$price, n = 1)))
+aitech1$log_returns <- ifelse(is.na(aitech1$log_returns), 0, aitech1$log_returns)
+
+aitech1$ticker <- "AITECH"
+
+
+#FORT
+fort1 <- read.csv("/Users/melvinzhang/Downloads/fort-usd-max.csv", sep=",")
+colnames(fort1)[1] <- "date"
+
+# Dates to numeric
+fort1$date <- ymd_hms(fort1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+fort1 <- fort1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+fort1$log_returns <- log(fort1$price / (lag(fort1$price, n = 1)))
+fort1$log_returns <- ifelse(is.na(fort1$log_returns), 0, fort1$log_returns)
+
+fort1$ticker <- "FORT"
+
+
+
+```
+
+```{r echo=F, error=F, message=F, results='asis', verbose=T}
+# Concatenate all dataframes into one Gecko
+gecko_all_data <- rbind(rndr, tao, fetch, agix, grt, akt, aioz, glm, ocean, trac, nos, rss3, X0X, arkm, paal, orai, agi, rlc, iq, pond, cqt1, nmr1, cgpt1, aitech1, fort1, cudos1, lmwr1, zig1, phb1, heart1)
+
+#Add column before or after GEMINI launch
+
+gecko_all_data <- gecko_all_data %>%
+                  mutate(gemini_exposure = ifelse(date < as.Date("2023-12-03"), 0, 1))
+
+saveRDS(gecko_all_data, file="gecko_ai.Rdata")
+
+```
+
+```{r echo=F, results='asis', error=F, message=F, verbose=T}
+#Controls for CoinGecko
+
+# BTC
+BTC <- read.csv("/Users/melvinzhang/Downloads/GControls/btc-usd-max.csv", sep=",")
+colnames(BTC)[1] <- "date"
+
+# Dates to numeric
+BTC$date <- ymd_hms(BTC$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BTC <- BTC %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+BTC$log_returns <- log(BTC$price / (lag(BTC$price, n = 1)))
+BTC$log_returns <- ifelse(is.na(BTC$log_returns), 0, BTC$log_returns)
+
+BTC$ticker <- "BTC"
+
+# ETH
+ETH <- read.csv("/Users/melvinzhang/Downloads/GControls/eth-usd-max.csv", sep=",")
+colnames(ETH)[1] <- "date"
+
+# Dates to numeric
+ETH$date <- ymd_hms(ETH$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ETH <- ETH %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ETH$log_returns <- log(ETH$price / (lag(ETH$price, n = 1)))
+ETH$log_returns <- ifelse(is.na(ETH$log_returns), 0, ETH$log_returns)
+
+ETH$ticker <- "ETH"
+
+
+#BNB
+BNB <- read.csv("/Users/melvinzhang/Downloads/GControls/bnb-usd-max.csv", sep=",")
+colnames(BNB)[1] <- "date"
+
+# Dates to numeric
+BNB$date <- ymd_hms(BNB$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BNB <- BNB %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+BNB$log_returns <- log(BNB$price / (lag(BNB$price, n = 1)))
+BNB$log_returns <- ifelse(is.na(BNB$log_returns), 0, BNB$log_returns)
+
+BNB$ticker <- "BNB"
+
+
+#XRP
+XRP <- read.csv("/Users/melvinzhang/Downloads/GControls/xrp-usd-max.csv", sep=",")
+colnames(XRP)[1] <- "date"
+
+# Dates to numeric
+XRP$date <- ymd_hms(XRP$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XRP <- XRP %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+XRP$log_returns <- log(XRP$price / (lag(XRP$price, n = 1)))
+XRP$log_returns <- ifelse(is.na(XRP$log_returns), 0, XRP$log_returns)
+
+XRP$ticker <- "XRP"
+
+
+#ADA
+ADA <- read.csv("/Users/melvinzhang/Downloads/GControls/ada-usd-max.csv", sep=",")
+colnames(ADA)[1] <- "date"
+
+# Dates to numeric
+ADA$date <- ymd_hms(ADA$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ADA <- ADA %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ADA$log_returns <- log(ADA$price / (lag(ADA$price, n = 1)))
+ADA$log_returns <- ifelse(is.na(ADA$log_returns), 0, ADA$log_returns)
+
+ADA$ticker <- "ADA"
+
+
+#SOL
+SOL <- read.csv("/Users/melvinzhang/Downloads/GControls/sol-usd-max.csv", sep=",")
+colnames(SOL)[1] <- "date"
+
+# Dates to numeric
+SOL$date <- ymd_hms(SOL$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SOL <- SOL %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+SOL$log_returns <- log(SOL$price / (lag(SOL$price, n = 1)))
+SOL$log_returns <- ifelse(is.na(SOL$log_returns), 0, SOL$log_returns)
+
+SOL$ticker <- "SOL"
+
+
+#STETH
+STETH <- read.csv("/Users/melvinzhang/Downloads/GControls/steth-usd-max.csv", sep=",")
+colnames(STETH)[1] <- "date"
+
+# Dates to numeric
+STETH$date <- ymd_hms(STETH$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+STETH <- STETH %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+STETH$log_returns <- log(STETH$price / (lag(STETH$price, n = 1)))
+STETH$log_returns <- ifelse(is.na(STETH$log_returns), 0, STETH$log_returns)
+
+STETH$ticker <- "STETH"
+
+
+# TRX
+TRX <- read.csv("/Users/melvinzhang/Downloads/GControls/trx-usd-max.csv", sep=",")
+colnames(TRX)[1] <- "date"
+
+# Dates to numeric
+TRX$date <- ymd_hms(TRX$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+TRX <- TRX %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+TRX$log_returns <- log(TRX$price / (lag(TRX$price, n = 1)))
+TRX$log_returns <- ifelse(is.na(TRX$log_returns), 0, TRX$log_returns)
+
+TRX$ticker <- "TRX"
+
+
+# DOGE
+DOGE <- read.csv("/Users/melvinzhang/Downloads/GControls/doge-usd-max.csv", sep=",")
+colnames(DOGE)[1] <- "date"
+
+# Dates to numeric
+DOGE$date <- ymd_hms(DOGE$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+DOGE <- DOGE %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+DOGE$log_returns <- log(DOGE$price / (lag(DOGE$price, n = 1)))
+DOGE$log_returns <- ifelse(is.na(DOGE$log_returns), 0, DOGE$log_returns)
+
+DOGE$ticker <- "DOGE"
+
+
+# AVAX
+AVAX <- read.csv("/Users/melvinzhang/Downloads/GControls/avax-usd-max.csv", sep=",")
+colnames(AVAX)[1] <- "date"
+
+# Dates to numeric
+AVAX$date <- ymd_hms(AVAX$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+AVAX <- AVAX %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+AVAX$log_returns <- log(AVAX$price / (lag(AVAX$price, n = 1)))
+AVAX$log_returns <- ifelse(is.na(AVAX$log_returns), 0, AVAX$log_returns)
+
+AVAX$ticker <- "AVAX"
+
+
+# TON
+TON <- read.csv("/Users/melvinzhang/Downloads/GControls/ton-usd-max.csv", sep=",")
+colnames(TON)[1] <- "date"
+
+# Dates to numeric
+TON$date <- ymd_hms(TON$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+TON <- TON %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+TON$log_returns <- log(TON$price / (lag(TON$price, n = 1)))
+TON$log_returns <- ifelse(is.na(TON$log_returns), 0, TON$log_returns)
+
+TON$ticker <- "TON"
+
+
+# DOT
+DOT <- read.csv("/Users/melvinzhang/Downloads/GControls/dot-usd-max.csv", sep=",")
+colnames(DOT)[1] <- "date"
+
+# Dates to numeric
+DOT$date <- ymd_hms(DOT$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+DOT <- DOT %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+DOT$log_returns <- log(DOT$price / (lag(DOT$price, n = 1)))
+DOT$log_returns <- ifelse(is.na(DOT$log_returns), 0, DOT$log_returns)
+
+DOT$ticker <- "DOT"
+
+
+# LINK
+LINK <- read.csv("/Users/melvinzhang/Downloads/GControls/link-usd-max.csv", sep=",")
+colnames(LINK)[1] <- "date"
+
+# Dates to numeric
+LINK$date <- ymd_hms(LINK$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LINK <- LINK %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LINK$log_returns <- log(LINK$price / (lag(LINK$price, n = 1)))
+LINK$log_returns <- ifelse(is.na(LINK$log_returns), 0, LINK$log_returns)
+
+LINK$ticker <- "LINK"
+
+
+# NEAR
+NEAR <- read.csv("/Users/melvinzhang/Downloads/GControls/near-usd-max.csv", sep=",")
+colnames(NEAR)[1] <- "date"
+
+# Dates to numeric
+NEAR$date <- ymd_hms(NEAR$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+NEAR <- NEAR %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+NEAR$log_returns <- log(NEAR$price / (lag(NEAR$price, n = 1)))
+NEAR$log_returns <- ifelse(is.na(NEAR$log_returns), 0, NEAR$log_returns)
+
+NEAR$ticker <- "NEAR"
+
+
+# MATIC
+MATIC <- read.csv("/Users/melvinzhang/Downloads/GControls/matic-usd-max.csv", sep=",")
+colnames(MATIC)[1] <- "date"
+
+# Dates to numeric
+MATIC$date <- ymd_hms(MATIC$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+MATIC <- MATIC %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+MATIC$log_returns <- log(MATIC$price / (lag(MATIC$price, n = 1)))
+MATIC$log_returns <- ifelse(is.na(MATIC$log_returns), 0, MATIC$log_returns)
+
+MATIC$ticker <- "MATIC"
+
+
+# ICP
+ICP <- read.csv("/Users/melvinzhang/Downloads/GControls/icp-usd-max.csv", sep=",")
+colnames(ICP)[1] <- "date"
+
+# Dates to numeric
+ICP$date <- ymd_hms(ICP$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ICP <- ICP %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ICP$log_returns <- log(ICP$price / (lag(ICP$price, n = 1)))
+ICP$log_returns <- ifelse(is.na(ICP$log_returns), 0, ICP$log_returns)
+
+ICP$ticker <- "ICP"
+
+                
+# LTC
+LTC <- read.csv("/Users/melvinzhang/Downloads/GControls/ltc-usd-max.csv", sep=",")
+colnames(LTC)[1] <- "date"
+
+# Dates to numeric
+LTC$date <- ymd_hms(LTC$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LTC <- LTC %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LTC$log_returns <- log(LTC$price / (lag(LTC$price, n = 1)))
+LTC$log_returns <- ifelse(is.na(LTC$log_returns), 0, LTC$log_returns)
+
+LTC$ticker <- "LTC"
+
+
+# UNI
+UNI <- read.csv("/Users/melvinzhang/Downloads/GControls/uni-usd-max.csv", sep=",")
+colnames(UNI)[1] <- "date"
+
+# Dates to numeric
+UNI$date <- ymd_hms(UNI$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+UNI <- UNI %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+UNI$log_returns <- log(UNI$price / (lag(UNI$price, n = 1)))
+UNI$log_returns <- ifelse(is.na(UNI$log_returns), 0, UNI$log_returns)
+
+UNI$ticker <- "UNI"
+
+
+# LEO
+LEO <- read.csv("/Users/melvinzhang/Downloads/GControls/leo-usd-max.csv", sep=",")
+colnames(LEO)[1] <- "date"
+
+# Dates to numeric
+LEO$date <- ymd_hms(LEO$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LEO <- LEO %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LEO$log_returns <- log(LEO$price / (lag(LEO$price, n = 1)))
+LEO$log_returns <- ifelse(is.na(LEO$log_returns), 0, LEO$log_returns)
+
+LEO$ticker <- "LEO"
+
+
+#SHIBA
+SHIB <- read.csv("/Users/melvinzhang/Downloads/GControls/shib-usd-max.csv", sep=",")
+colnames(SHIB)[1] <- "date"
+
+# Dates to numeric
+SHIB$date <- ymd_hms(SHIB$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SHIB <- SHIB %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+SHIB$log_returns <- log(SHIB$price / (lag(SHIB$price, n = 1)))
+SHIB$log_returns <- ifelse(is.na(SHIB$log_returns), 0, SHIB$log_returns)
+
+SHIB$ticker <- "SHIB"
+
+#PEPE
+PEPE1 <- read.csv("/Users/melvinzhang/Downloads/pepe-usd-max.csv", sep=",")
+colnames(PEPE1)[1] <- "date"
+
+# Dates to numeric
+PEPE1$date <- ymd_hms(PEPE1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+PEPE1 <- PEPE1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+PEPE1$log_returns <- log(PEPE1$price / (lag(PEPE1$price, n = 1)))
+PEPE1$log_returns <- ifelse(is.na(PEPE1$log_returns), 0, PEPE1$log_returns)
+
+PEPE1$ticker <- "PEPE"
+
+#KAS
+KAS1 <- read.csv("/Users/melvinzhang/Downloads/kas-usd-max.csv", sep=",")
+colnames(KAS1)[1] <- "date"
+
+# Dates to numeric
+KAS1$date <- ymd_hms(KAS1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+KAS1 <- KAS1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+KAS1$log_returns <- log(KAS1$price / (lag(KAS1$price, n = 1)))
+KAS1$log_returns <- ifelse(is.na(KAS1$log_returns), 0, KAS1$log_returns)
+
+KAS1$ticker <- "KAS"
+
+#APT
+APT1 <- read.csv("/Users/melvinzhang/Downloads/apt-usd-max.csv", sep=",")
+colnames(APT1)[1] <- "date"
+
+# Dates to numeric
+APT1$date <- ymd_hms(APT1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+APT1 <- APT1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+APT1$log_returns <- log(APT1$price / (lag(APT1$price, n = 1)))
+APT1$log_returns <- ifelse(is.na(APT1$log_returns), 0, APT1$log_returns)
+
+APT1$ticker <- "APT"
+
+#XMR
+XMR1 <- read.csv("/Users/melvinzhang/Downloads/xmr-usd-max.csv", sep=",")
+colnames(XMR1)[1] <- "date"
+
+# Dates to numeric
+XMR1$date <- ymd_hms(XMR1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XMR1 <- XMR1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+XMR1$log_returns <- log(XMR1$price / (lag(XMR1$price, n = 1)))
+XMR1$log_returns <- ifelse(is.na(XMR1$log_returns), 0, XMR1$log_returns)
+
+XMR1$ticker <- "XMR"
+
+#STX
+STX1 <- read.csv("/Users/melvinzhang/Downloads/stx-usd-max.csv", sep=",")
+colnames(STX1)[1] <- "date"
+
+# Dates to numeric
+STX1$date <- ymd_hms(STX1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+STX1 <- STX1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+STX1$log_returns <- log(STX1$price / (lag(STX1$price, n = 1)))
+STX1$log_returns <- ifelse(is.na(STX1$log_returns), 0, STX1$log_returns)
+
+STX1$ticker <- "STX"
+
+#HBAR
+HBAR1 <- read.csv("/Users/melvinzhang/Downloads/hbar-usd-max.csv", sep=",")
+colnames(HBAR1)[1] <- "date"
+
+# Dates to numeric
+HBAR1$date <- ymd_hms(HBAR1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+HBAR1 <- HBAR1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+HBAR1$log_returns <- log(HBAR1$price / (lag(HBAR1$price, n = 1)))
+HBAR1$log_returns <- ifelse(is.na(HBAR1$log_returns), 0, HBAR1$log_returns)
+
+HBAR1$ticker <- "HBAR"
+
+#FIL
+FIL1 <- read.csv("/Users/melvinzhang/Downloads/fil-usd-max.csv", sep=",")
+colnames(FIL1)[1] <- "date"
+
+# Dates to numeric
+FIL1$date <- ymd_hms(FIL1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+FIL1 <- FIL1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+FIL1$log_returns <- log(FIL1$price / (lag(FIL1$price, n = 1)))
+FIL1$log_returns <- ifelse(is.na(FIL1$log_returns), 0, FIL1$log_returns)
+
+FIL1$ticker <- "FIL"
+
+#MNT
+MNT1 <- read.csv("/Users/melvinzhang/Downloads/mnt-usd-max.csv", sep=",")
+colnames(MNT1)[1] <- "date"
+
+# Dates to numeric
+MNT1$date <- ymd_hms(MNT1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+MNT1 <- MNT1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+MNT1$log_returns <- log(MNT1$price / (lag(MNT1$price, n = 1)))
+MNT1$log_returns <- ifelse(is.na(MNT1$log_returns), 0, MNT1$log_returns)
+
+MNT1$ticker <- "MNT"
+
+#XLM
+XLM1 <- read.csv("/Users/melvinzhang/Downloads/xlm-usd-max.csv", sep=",")
+colnames(XLM1)[1] <- "date"
+
+# Dates to numeric
+XLM1$date <- ymd_hms(XLM1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XLM1 <- XLM1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+XLM1$log_returns <- log(XLM1$price / (lag(XLM1$price, n = 1)))
+XLM1$log_returns <- ifelse(is.na(XLM1$log_returns), 0, XLM1$log_returns)
+
+XLM1$ticker <- "XLM"
+
+#CRO
+CRO1 <- read.csv("/Users/melvinzhang/Downloads/cro-usd-max.csv", sep=",")
+colnames(CRO1)[1] <- "date"
+
+# Dates to numeric
+CRO1$date <- ymd_hms(CRO1$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+CRO1 <- CRO1 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+CRO1$log_returns <- log(CRO1$price / (lag(CRO1$price, n = 1)))
+CRO1$log_returns <- ifelse(is.na(CRO1$log_returns), 0, CRO1$log_returns)
+
+CRO1$ticker <- "CRO"
+
+
+
+```
+
+```{r echo=F, verbose=T, message=F, error=F, results='asis'}
+#Concatenation of control Coingecko
+all_controls_gecko <- rbind(BTC, ETH, BNB, XRP, ADA, DOGE, MATIC, SOL, DOT, SHIB, LTC, AVAX, TRX, UNI, TON, LINK, NEAR, ICP, LEO, PEPE1, KAS1, APT1, XMR1, STX1, HBAR1, FIL1, MNT1, XLM1, CRO1)
+
+#Add column before or after GEMINI launch
+all_controls_gecko <- all_controls_gecko %>%
+                  mutate(gemini_exposure = ifelse(date < as.Date("2023-12-03"), 0, 1))
+
+
+saveRDS(all_controls_gecko, file="controls_gecko.Rdata")
+```
+
+```{r echo=F, verbose=T, message=F, error=F, results='asis'}
+#Coinmarketcap 
+#NEAR
+near2 <- read.csv("/Users/melvinzhang/Downloads/CAI/NEAR Protocol_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(near2)[1] <- "date"
+
+# Dates to numeric
+near2$date <- ymd_hms(near2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+near2 <- near2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+near2$log_returns <- log(near2$close / (lag(near2$close, n = 1)))
+near2$log_returns <- ifelse(is.na(near2$log_returns), 0, near2$log_returns)
+
+near2$ticker <- "NEAR"
+
+
+#RENDER
+render2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Render_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(render2)[1] <- "date"
+
+# Dates to numeric
+render2$date <- ymd_hms(render2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+render2 <- render2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+render2$log_returns <- log(render2$close / (lag(render2$close, n = 1)))
+render2$log_returns <- ifelse(is.na(render2$log_returns), 0, render2$log_returns)
+
+render2$ticker <- "RNDR"
+
+
+#TAO
+tao2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Bittensor_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(tao2)[1] <- "date"
+
+# Dates to numeric
+tao2$date <- ymd_hms(tao2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+tao2 <- tao2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+tao2$log_returns <- log(tao2$close / (lag(tao2$close, n = 1)))
+tao2$log_returns <- ifelse(is.na(tao2$log_returns), 0, tao2$log_returns)
+
+tao2$ticker <- "TAO"
+
+
+#GRT
+grt2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Bittensor_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(grt2)[1] <- "date"
+
+# Dates to numeric
+grt2$date <- ymd_hms(grt2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+grt2 <- grt2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+grt2$log_returns <- log(grt2$close / (lag(grt2$close, n = 1)))
+grt2$log_returns <- ifelse(is.na(grt2$log_returns), 0, grt2$log_returns)
+
+grt2$ticker <- "GRT"
+
+
+#INJ
+inj2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Injective_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(inj2)[1] <- "date"
+
+# Dates to numeric
+inj2$date <- ymd_hms(inj2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+inj2 <- inj2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+inj2$log_returns <- log(inj2$close / (lag(inj2$close, n = 1)))
+inj2$log_returns <- ifelse(is.na(inj2$log_returns), 0, inj2$log_returns)
+
+inj2$ticker <- "INJ"
+
+
+#THETA
+theta <- read.csv("/Users/melvinzhang/Downloads/CAI/Theta Network_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(theta)[1] <- "date"
+
+# Dates to numeric
+theta$date <- ymd_hms(theta$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+theta <- theta %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+theta$log_returns <- log(theta$close / (lag(theta$close, n = 1)))
+theta$log_returns <- ifelse(is.na(theta$log_returns), 0, theta$log_returns)
+
+theta$ticker <- "THETA"
+
+
+#FETCH
+fetch2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Fetch.ai_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(fetch2)[1] <- "date"
+
+# Dates to numeric
+fetch2$date <- ymd_hms(fetch2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+fetch2 <- fetch2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+fetch2$log_returns <- log(fetch2$close / (lag(fetch2$close, n = 1)))
+fetch2$log_returns <- ifelse(is.na(fetch2$log_returns), 0, fetch2$log_returns)
+
+fetch2$ticker <- "FETCH"
+
+
+#AGIX
+agix2 <- read.csv("/Users/melvinzhang/Downloads/CAI/SingularityNET_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(agix2)[1] <- "date"
+
+# Dates to numeric
+agix2$date <- ymd_hms(agix2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+agix2 <- agix2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+agix2$log_returns <- log(agix2$close / (lag(agix2$close, n = 1)))
+agix2$log_returns <- ifelse(is.na(agix2$log_returns), 0, agix2$log_returns)
+
+agix2$ticker <- "AGIX"
+
+
+#AKT
+akt2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Akash Network_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(akt2)[1] <- "date"
+
+# Dates to numeric
+akt2$date <- ymd_hms(akt2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+akt2 <- akt2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+akt2$log_returns <- log(akt2$close / (lag(akt2$close, n = 1)))
+akt2$log_returns <- ifelse(is.na(akt2$log_returns), 0, akt2$log_returns)
+
+akt2$ticker <- "AKT"
+
+
+#TFUEL
+tfuel <- read.csv("/Users/melvinzhang/Downloads/CAI/Theta Fuel_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(tfuel)[1] <- "date"
+
+# Dates to numeric
+tfuel$date <- ymd_hms(tfuel$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+tfuel <- tfuel %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+tfuel$log_returns <- log(tfuel$close / (lag(tfuel$close, n = 1)))
+tfuel$log_returns <- ifelse(is.na(tfuel$log_returns), 0, tfuel$log_returns)
+
+tfuel$ticker <- "TFUEL"
+
+
+#AIOZ
+aioz <- read.csv("/Users/melvinzhang/Downloads/CAI/AIOZ Network_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(aioz)[1] <- "date"
+
+# Dates to numeric
+aioz$date <- ymd_hms(aioz$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+aioz <- aioz %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+aioz$log_returns <- log(aioz$close / (lag(aioz$close, n = 1)))
+aioz$log_returns <- ifelse(is.na(aioz$log_returns), 0, aioz$log_returns)
+
+aioz$ticker <- "AIOZ"
+
+
+#OASIS
+oasis <- read.csv("/Users/melvinzhang/Downloads/CAI/Oasis Network_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(oasis)[1] <- "date"
+
+# Dates to numeric
+oasis$date <- ymd_hms(oasis$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+oasis <- oasis %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+oasis$log_returns <- log(oasis$close / (lag(oasis$close, n = 1)))
+oasis$log_returns <- ifelse(is.na(oasis$log_returns), 0, oasis$log_returns)
+
+oasis$ticker <- "OASIS"
+
+
+#PRIME
+prime <- read.csv("/Users/melvinzhang/Downloads/CAI/Echelon Prime_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(prime)[1] <- "date"
+
+# Dates to numeric
+prime$date <- ymd_hms(prime$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+prime <- prime %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+prime$log_returns <- log(prime$close / (lag(prime$close, n = 1)))
+prime$log_returns <- ifelse(is.na(prime$log_returns), 0, prime$log_returns)
+
+prime$ticker <- "PRIME"
+
+
+#GLM
+glm2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Golem_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(glm2)[1] <- "date"
+
+# Dates to numeric
+glm2$date <- ymd_hms(glm2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+glm2 <- glm2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+glm2$log_returns <- log(glm2$close / (lag(glm2$close, n = 1)))
+glm2$log_returns <- ifelse(is.na(glm2$log_returns), 0, glm2$log_returns)
+
+glm2$ticker <- "GLM"
+
+
+#OCEAN2
+ocean2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Arkham_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ocean2)[1] <- "date"
+
+# Dates to numeric
+ocean2$date <- ymd_hms(ocean2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ocean2 <- ocean2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ocean2$log_returns <- log(ocean2$close / (lag(ocean2$close, n = 1)))
+ocean2$log_returns <- ifelse(is.na(ocean2$log_returns), 0, ocean2$log_returns)
+
+ocean2$ticker <- "OCEAN2"
+
+
+#ARKM
+arkm <- read.csv("/Users/melvinzhang/Downloads/CAI/Ocean Protocol_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(arkm)[1] <- "date"
+
+# Dates to numeric
+arkm$date <- ymd_hms(arkm$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+arkm <- arkm %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+arkm$log_returns <- log(arkm$close / (lag(arkm$close, n = 1)))
+arkm$log_returns <- ifelse(is.na(arkm$log_returns), 0, arkm$log_returns)
+
+arkm$ticker <- "ARKM"
+
+
+#TRAC2
+trac2 <- read.csv("/Users/melvinzhang/Downloads/CAI/OriginTrail_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(trac2)[1] <- "date"
+
+# Dates to numeric
+trac2$date <- ymd_hms(trac2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+trac2 <- trac2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+trac2$log_returns <- log(trac2$close / (lag(trac2$close, n = 1)))
+trac2$log_returns <- ifelse(is.na(trac2$log_returns), 0, trac2$log_returns)
+
+trac2$ticker <- "TRAC"
+
+
+#FLUX
+flux <- read.csv("/Users/melvinzhang/Downloads/CAI/Flux_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(flux)[1] <- "date"
+
+# Dates to numeric
+flux$date <- ymd_hms(flux$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+flux <- flux %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+flux$log_returns <- log(flux$close / (lag(flux$close, n = 1)))
+flux$log_returns <- ifelse(is.na(flux$log_returns), 0, flux$log_returns)
+
+flux$ticker <- "FLUX"
+
+
+#PAAL
+paal2 <- read.csv("/Users/melvinzhang/Downloads/CAI/PAAL AI_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(paal2)[1] <- "date"
+
+# Dates to numeric
+paal2$date <- ymd_hms(paal2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+paal2 <- paal2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+paal2$log_returns <- log(paal2$close / (lag(paal2$close, n = 1)))
+paal2$log_returns <- ifelse(is.na(paal2$log_returns), 0, paal2$log_returns)
+
+paal2$ticker <- "PAAL"
+
+
+#KDA
+kda <- read.csv("/Users/melvinzhang/Downloads/CAI/Kadena_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(kda)[1] <- "date"
+
+# Dates to numeric
+kda$date <- ymd_hms(kda$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+kda <- kda %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+kda$log_returns <- log(kda$close / (lag(kda$close, n = 1)))
+kda$log_returns <- ifelse(is.na(kda$log_returns), 0, kda$log_returns)
+
+kda$ticker <- "KDA"
+
+
+#ABT
+abt <- read.csv("/Users/melvinzhang/Downloads/CAI/Arcblock_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(abt)[1] <- "date"
+
+# Dates to numeric
+abt$date <- ymd_hms(abt$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+abt <- abt %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+abt$log_returns <- log(abt$close / (lag(abt$close, n = 1)))
+abt$log_returns <- ifelse(is.na(abt$log_returns), 0, abt$log_returns)
+
+abt$ticker <- "ABT"
+
+
+#rss32
+rss32 <- read.csv("/Users/melvinzhang/Downloads/CAI/rss3_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(rss32)[1] <- "date"
+
+# Dates to numeric
+rss32$date <- ymd_hms(rss32$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+rss32 <- rss32 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+rss32$log_returns <- log(rss32$close / (lag(rss32$close, n = 1)))
+rss32$log_returns <- ifelse(is.na(rss32$log_returns), 0, rss32$log_returns)
+
+rss32$ticker <- "RSS3"
+
+
+#RLC
+rlc <- read.csv("/Users/melvinzhang/Downloads/CAI/iExec RLC_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(rlc)[1] <- "date"
+
+# Dates to numeric
+rlc$date <- ymd_hms(rlc$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+rlc <- rlc %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+rlc$log_returns <- log(rlc$close / (lag(rlc$close, n = 1)))
+rlc$log_returns <- ifelse(is.na(rlc$log_returns), 0, rlc$log_returns)
+
+rlc$ticker <- "RLC"
+
+
+#AGI2
+agi2 <- read.csv("//Users/melvinzhang/Downloads/CAI/Delysium_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(agi2)[1] <- "date"
+
+# Dates to numeric
+agi2$date <- ymd_hms(agi2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+agi2 <- agi2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+agi2$log_returns <- log(agi2$close / (lag(agi2$close, n = 1)))
+agi2$log_returns <- ifelse(is.na(agi2$log_returns), 0, agi2$log_returns)
+
+agi2$ticker <- "AGI"
+
+
+#IQ2
+iq2 <- read.csv("/Users/melvinzhang/Downloads/CAI/IQ_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(iq2)[1] <- "date"
+
+# Dates to numeric
+iq2$date <- ymd_hms(iq2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+iq2 <- iq2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+iq2$log_returns <- log(iq2$close / (lag(iq2$close, n = 1)))
+iq2$log_returns <- ifelse(is.na(iq2$log_returns), 0, iq2$log_returns)
+
+iq2$ticker <- "IQ"
+
+
+#POND2
+pond2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Marlin_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(pond2)[1] <- "date"
+
+# Dates to numeric
+pond2$date <- ymd_hms(pond2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+pond2 <- pond2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+pond2$log_returns <- log(pond2$close / (lag(pond2$close, n = 1)))
+pond2$log_returns <- ifelse(is.na(pond2$log_returns), 0, pond2$log_returns)
+
+pond2$ticker <- "POND"
+
+
+#SURE
+sure <- read.csv("/Users/melvinzhang/Downloads/CAI/inSure DeFi_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(sure)[1] <- "date"
+
+# Dates to numeric
+sure$date <- ymd_hms(sure$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+sure <- sure %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+sure$log_returns <- log(sure$close / (lag(sure$close, n = 1)))
+sure$log_returns <- ifelse(is.na(sure$log_returns), 0, sure$log_returns)
+
+sure$ticker <- "SURE"
+
+
+#NMR
+nmr <- read.csv("//Users/melvinzhang/Downloads/CAI/Numeraire_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(nmr)[1] <- "date"
+
+# Dates to numeric
+nmr$date <- ymd_hms(nmr$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+nmr <- nmr %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+nmr$log_returns <- log(nmr$close / (lag(nmr$close, n = 1)))
+nmr$log_returns <- ifelse(is.na(nmr$log_returns), 0, nmr$log_returns)
+
+nmr$ticker <- "NMR"
+
+
+#ZIG
+zig <- read.csv("/Users/melvinzhang/Downloads/CAI/Zignaly_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(zig)[1] <- "date"
+
+# Dates to numeric
+zig$date <- ymd_hms(zig$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+zig <- zig %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+zig$log_returns <- log(zig$close / (lag(zig$close, n = 1)))
+zig$log_returns <- ifelse(is.na(zig$log_returns), 0, zig$log_returns)
+
+zig$ticker <- "ZIG"
+
+
+#PHA
+pha <- read.csv("/Users/melvinzhang/Downloads/CAI/Phala Network_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(pha)[1] <- "date"
+
+# Dates to numeric
+pha$date <- ymd_hms(pha$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+pha <- pha %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+pha$log_returns <- log(pha$close / (lag(pha$close, n = 1)))
+pha$log_returns <- ifelse(is.na(pha$log_returns), 0, pha$log_returns)
+
+pha$ticker <- "PHA"
+
+
+#HOOK
+hook <- read.csv("/Users/melvinzhang/Downloads/CAI/Hooked Protocol_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(hook)[1] <- "date"
+
+# Dates to numeric
+hook$date <- ymd_hms(hook$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+hook <- hook %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+hook$log_returns <- log(hook$close / (lag(hook$close, n = 1)))
+hook$log_returns <- ifelse(is.na(hook$log_returns), 0, hook$log_returns)
+
+hook$ticker <- "HOOK"
+
+
+#ORAI
+orai <- read.csv("/Users/melvinzhang/Downloads/CAI/Oraichain_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(orai)[1] <- "date"
+
+# Dates to numeric
+orai$date <- ymd_hms(orai$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+orai <- orai %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+orai$log_returns <- log(orai$close / (lag(orai$close, n = 1)))
+orai$log_returns <- ifelse(is.na(orai$log_returns), 0, orai$log_returns)
+
+orai$ticker <- "ORAI"
+
+
+
+#DKA
+dka <- read.csv("/Users/melvinzhang/Downloads/CAI/dKargo_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(dka)[1] <- "date"
+
+# Dates to numeric
+dka$date <- ymd_hms(dka$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+dka <- dka %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+dka$log_returns <- log(dka$close / (lag(dka$close, n = 1)))
+dka$log_returns <- ifelse(is.na(dka$log_returns), 0, dka$log_returns)
+
+dka$ticker <- "DKA"
+
+
+#CQT
+cqt <- read.csv("/Users/melvinzhang/Downloads/CAI/Covalent_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(cqt)[1] <- "date"
+
+# Dates to numeric
+cqt$date <- ymd_hms(cqt$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+cqt <- cqt %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+cqt$log_returns <- log(cqt$close / (lag(cqt$close, n = 1)))
+cqt$log_returns <- ifelse(is.na(cqt$log_returns), 0, cqt$log_returns)
+
+cqt$ticker <- "CQT"
+
+
+#NFP
+nfp <- read.csv("/Users/melvinzhang/Downloads/CAI/NFPrompt_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(nfp)[1] <- "date"
+
+# Dates to numeric
+nfp$date <- ymd_hms(nfp$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+nfp <- nfp %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+nfp$log_returns <- log(nfp$close / (lag(nfp$close, n = 1)))
+nfp$log_returns <- ifelse(is.na(nfp$log_returns), 0, nfp$log_returns)
+
+nfp$ticker <- "NFP"
+
+
+#OZONE2
+ozone2 <- read.csv("/Users/melvinzhang/Downloads/CAI/Ozone Chain_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ozone2)[1] <- "date"
+
+# Dates to numeric
+ozone2$date <- ymd_hms(ozone2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ozone2 <- ozone2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ozone2$log_returns <- log(ozone2$close / (lag(ozone2$close, n = 1)))
+ozone2$log_returns <- ifelse(is.na(ozone2$log_returns), 0, ozone2$log_returns)
+
+ozone2$ticker <- "OZONE"
+
+
+#TOKEN
+token <- read.csv("/Users/melvinzhang/Downloads/CAI/TokenFi_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(token)[1] <- "date"
+
+# Dates to numeric
+token$date <- ymd_hms(token$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+token <- token %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+token$log_returns <- log(token$close / (lag(token$close, n = 1)))
+token$log_returns <- ifelse(is.na(token$log_returns), 0, token$log_returns)
+
+token$ticker <- "TOKEN"
+
+
+#FORT
+fort <- read.csv("/Users/melvinzhang/Downloads/CAI/Forta_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(fort)[1] <- "date"
+
+# Dates to numeric
+fort$date <- ymd_hms(fort$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+fort <- fort %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+fort$log_returns <- log(fort$close / (lag(fort$close, n = 1)))
+fort$log_returns <- ifelse(is.na(fort$log_returns), 0, fort$log_returns)
+
+fort$ticker <- "FORT"
+
+
+#AITECH
+aitech <- read.csv("/Users/melvinzhang/Downloads/CAI/Solidus Ai Tech_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(aitech)[1] <- "date"
+
+# Dates to numeric
+aitech$date <- ymd_hms(aitech$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+aitech <- aitech %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+aitech$log_returns <- log(aitech$close / (lag(aitech$close, n = 1)))
+aitech$log_returns <- ifelse(is.na(aitech$log_returns), 0, aitech$log_returns)
+
+aitech$ticker <- "AITECH"
+
+
+#GPU
+gpu <- read.csv("/Users/melvinzhang/Downloads/CAI/Node AI_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(gpu)[1] <- "date"
+
+# Dates to numeric
+gpu$date <- ymd_hms(gpu$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+gpu <- gpu %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+gpu$log_returns <- log(gpu$close / (lag(gpu$close, n = 1)))
+gpu$log_returns <- ifelse(is.na(gpu$log_returns), 0, gpu$log_returns)
+
+gpu$ticker <- "GPU"
+
+
+#CUDOS
+cudos <- read.csv("/Users/melvinzhang/Downloads/CAI/CUDOS_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(cudos)[1] <- "date"
+
+# Dates to numeric
+cudos$date <- ymd_hms(cudos$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+cudos <- cudos %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+cudos$log_returns <- log(cudos$close / (lag(cudos$close, n = 1)))
+cudos$log_returns <- ifelse(is.na(cudos$log_returns), 0, cudos$log_returns)
+
+cudos$ticker <- "CUDOS"
+
+
+#VR
+vr <- read.csv("/Users/melvinzhang/Downloads/CAI/Victoria VR_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(vr)[1] <- "date"
+
+# Dates to numeric
+vr$date <- ymd_hms(vr$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+vr <- vr %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+vr$log_returns <- log(vr$close / (lag(vr$close, n = 1)))
+vr$log_returns <- ifelse(is.na(vr$log_returns), 0, vr$log_returns)
+
+vr$ticker <- "VR"
+
+
+#PHB
+phb <- read.csv("/Users/melvinzhang/Downloads/CAI/Phoenix Blockchain_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(phb)[1] <- "date"
+
+# Dates to numeric
+phb$date <- ymd_hms(phb$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+phb <- phb %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+phb$log_returns <- log(phb$close / (lag(phb$close, n = 1)))
+phb$log_returns <- ifelse(is.na(phb$log_returns), 0, phb$log_returns)
+
+phb$ticker <- "PHB"
+
+
+#LMWR
+lmwr <- read.csv("/Users/melvinzhang/Downloads/CAI/LimeWire_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(lmwr)[1] <- "date"
+
+# Dates to numeric
+lmwr$date <- ymd_hms(lmwr$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+lmwr <- lmwr %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+lmwr$log_returns <- log(lmwr$close / (lag(lmwr$close, n = 1)))
+lmwr$log_returns <- ifelse(is.na(lmwr$log_returns), 0, lmwr$log_returns)
+
+lmwr$ticker <- "LMWR"
+
+
+#ALEPH
+aleph <- read.csv("/Users/melvinzhang/Downloads/CAI/Aleph.im_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(aleph)[1] <- "date"
+
+# Dates to numeric
+aleph$date <- ymd_hms(aleph$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+aleph <- aleph %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+aleph$log_returns <- log(aleph$close / (lag(aleph$close, n = 1)))
+aleph$log_returns <- ifelse(is.na(aleph$log_returns), 0, aleph$log_returns)
+
+aleph$ticker <- "ALEPH"
+
+
+#DMTR
+dmtr <- read.csv("/Users/melvinzhang/Downloads/CAI/Dimitra_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(dmtr)[1] <- "date"
+
+# Dates to numeric
+dmtr$date <- ymd_hms(dmtr$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+dmtr <- dmtr %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+dmtr$log_returns <- log(dmtr$close / (lag(dmtr$close, n = 1)))
+dmtr$log_returns <- ifelse(is.na(dmtr$log_returns), 0, dmtr$log_returns)
+
+dmtr$ticker <- "DMTR"
+
+
+#CTXC
+ctxc <- read.csv("/Users/melvinzhang/Downloads/CAI/Cortex_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ctxc)[1] <- "date"
+
+# Dates to numeric
+ctxc$date <- ymd_hms(ctxc$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ctxc <- ctxc %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ctxc$log_returns <- log(ctxc$close / (lag(ctxc$close, n = 1)))
+ctxc$log_returns <- ifelse(is.na(ctxc$log_returns), 0, ctxc$log_returns)
+
+ctxc$ticker <- "CTXC"
+
+
+#AGRS
+agrs <- read.csv("/Users/melvinzhang/Downloads/CAI/Agoras_ Currency of Tau_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(agrs)[1] <- "date"
+
+# Dates to numeric
+agrs$date <- ymd_hms(agrs$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+agrs <- agrs %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+agrs$log_returns <- log(agrs$close / (lag(agrs$close, n = 1)))
+agrs$log_returns <- ifelse(is.na(agrs$log_returns), 0, agrs$log_returns)
+
+agrs$ticker <- "AGRS"
+
+
+#ALI
+ali <- read.csv("/Users/melvinzhang/Downloads/CAI/Artificial Liquid Intelligence_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ali)[1] <- "date"
+
+# Dates to numeric
+ali$date <- ymd_hms(ali$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ali <- ali %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ali$log_returns <- log(ali$close / (lag(ali$close, n = 1)))
+ali$log_returns <- ifelse(is.na(ali$log_returns), 0, ali$log_returns)
+
+ali$ticker <- "ALI"
+
+
+#SIDUS
+sidus <- read.csv("/Users/melvinzhang/Downloads/CAI/SIDUS_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(sidus)[1] <- "date"
+
+# Dates to numeric
+sidus$date <- ymd_hms(sidus$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+sidus <- sidus %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+sidus$log_returns <- log(sidus$close / (lag(sidus$close, n = 1)))
+sidus$log_returns <- ifelse(is.na(sidus$log_returns), 0, sidus$log_returns)
+
+sidus$ticker <- "SIDUS"
+
+
+#VAI
+vai <- read.csv("/Users/melvinzhang/Downloads/CAI/VAIOT_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(vai)[1] <- "date"
+
+# Dates to numeric
+vai$date <- ymd_hms(vai$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+vai <- vai %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+vai$log_returns <- log(vai$close / (lag(vai$close, n = 1)))
+vai$log_returns <- ifelse(is.na(vai$log_returns), 0, vai$log_returns)
+
+vai$ticker <- "VAI"
+
+
+#LAT
+lat <- read.csv("/Users/melvinzhang/Downloads/CAI/PlatON_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(lat)[1] <- "date"
+
+# Dates to numeric
+lat$date <- ymd_hms(lat$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+lat <- lat %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+lat$log_returns <- log(lat$close / (lag(lat$close, n = 1)))
+lat$log_returns <- ifelse(is.na(lat$log_returns), 0, lat$log_returns)
+
+lat$ticker <- "LAT"
+
+
+#DATA
+data <- read.csv("/Users/melvinzhang/Downloads/CAI/Streamr_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(data)[1] <- "date"
+
+# Dates to numeric
+data$date <- ymd_hms(data$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+data <- data %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcudataions
+data$log_returns <- log(data$close / (lag(data$close, n = 1)))
+data$log_returns <- ifelse(is.na(data$log_returns), 0, data$log_returns)
+
+data$ticker <- "DATA"
+
+
+#NUM
+num <- read.csv("/Users/melvinzhang/Downloads/CAI/Numbers Protocol_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(num)[1] <- "date"
+
+# Dates to numeric
+num$date <- ymd_hms(num$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+num <- num %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcunumions
+num$log_returns <- log(num$close / (lag(num$close, n = 1)))
+num$log_returns <- ifelse(is.na(num$log_returns), 0, num$log_returns)
+
+num$ticker <- "NUM"
+
+
+#VRA
+vra <- read.csv("/Users/melvinzhang/Downloads/CAI/Verasity_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(vra)[1] <- "date"
+
+# Dates to vraeric
+vra$date <- ymd_hms(vra$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+vra <- vra %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuvraions
+vra$log_returns <- log(vra$close / (lag(vra$close, n = 1)))
+vra$log_returns <- ifelse(is.na(vra$log_returns), 0, vra$log_returns)
+
+vra$ticker <- "VRA"
+
+
+#DIA
+dia <- read.csv("/Users/melvinzhang/Downloads/CAI/DIA_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(dia)[1] <- "date"
+
+# Dates to diaeric
+dia$date <- ymd_hms(dia$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+dia <- dia %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcudiaions
+dia$log_returns <- log(dia$close / (lag(dia$close, n = 1)))
+dia$log_returns <- ifelse(is.na(dia$log_returns), 0, dia$log_returns)
+
+dia$ticker <- "DIA"
+
+
+#SDAO
+sdao <- read.csv("/Users/melvinzhang/Downloads/CAI/SingularityDAO_30_04_2023-29_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(sdao)[1] <- "date"
+
+# Dates to sdaoeric
+sdao$date <- ymd_hms(sdao$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+sdao <- sdao %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcusdaoions
+sdao$log_returns <- log(sdao$close / (lag(sdao$close, n = 1)))
+sdao$log_returns <- ifelse(is.na(sdao$log_returns), 0, sdao$log_returns)
+
+sdao$ticker <- "SDAO"
+
+
+```
+
+```{r echo=F, verbose=T, message=F, error=F, results='asis'}
+
+#Binding all AI and big data coins
+all_coin_ai <- rbind(abt, agix2, agi2, agrs, aioz, aitech, akt2, aleph, ali, arkm, cqt, ctxc, cudos, data,dia, dka, dmtr, fetch2, flux, fort, glm2, grt2, hook, inj2, iq2, kda, lat, lmwr, near2, nmr, num, oasis, ocean2, orai, ozone2, paal2, pha, pond2, prime, render2, rlc, rss32, sdao, sidus, sure, tao2, tfuel, theta, trac2, vai, vr ,vra, zig)
+
+#Add column before or after GEMINI launch
+all_coin_ai <- all_coin_ai %>%
+                  mutate(gemini_exposure = ifelse(date < as.Date("2023-12-03"), 0, 1))
+
+#Counting all dataframes/coins
+# List all objects in the global environment
+objects <- ls()
+
+# Filter out only dataframes
+dataframes <- objects[sapply(objects, function(x) is.data.frame(get(x)))]
+
+# Count the number of dataframes
+num_dataframes <- length(dataframes)
+
+# Print the number of dataframes
+print(num_dataframes)
+
+#Save data Coinmarketcap coins
+saveRDS(all_coin_ai, file="all_coin_ai.Rdata")
+
+```
+
+```{r echo=F, verbose=T, message=F, error=F, results='asis'}
+#Coinmarketcap Controls
+#BTC
+BTC2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Bitcoin_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(BTC2)[1] <- "date"
+
+# Dates to BTCeric
+BTC2$date <- ymd_hms(BTC2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BTC2 <- BTC2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+BTC2$log_returns <- log(BTC2$close / (lag(BTC2$close, n = 1)))
+BTC2$log_returns <- ifelse(is.na(BTC2$log_returns), 0, BTC2$log_returns)
+
+BTC2$ticker <- "BTC"
+
+
+#ETH
+ETH2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Ethereum_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ETH2)[1] <- "date"
+
+# Dates to BTCeric
+ETH2$date <- ymd_hms(ETH2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ETH2 <- ETH2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+ETH2$log_returns <- log(ETH2$close / (lag(ETH2$close, n = 1)))
+ETH2$log_returns <- ifelse(is.na(ETH2$log_returns), 0, ETH2$log_returns)
+
+ETH2$ticker <- "ETH"
+
+
+#BNB
+BNB2 <- read.csv("/Users/melvinzhang/Downloads/CControls/BNB_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(BNB2)[1] <- "date"
+
+# Dates to BTCeric
+BNB2$date <- ymd_hms(BNB2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BNB2 <- BNB2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+BNB2$log_returns <- log(BNB2$close / (lag(BNB2$close, n = 1)))
+BNB2$log_returns <- ifelse(is.na(BNB2$log_returns), 0, BNB2$log_returns)
+
+BNB2$ticker <- "BNB"
+
+
+#SOL2
+SOL2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Solana_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(SOL2)[1] <- "date"
+
+# Dates to BTCeric
+SOL2$date <- ymd_hms(SOL2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SOL2 <- SOL2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+SOL2$log_returns <- log(SOL2$close / (lag(SOL2$close, n = 1)))
+SOL2$log_returns <- ifelse(is.na(SOL2$log_returns), 0, SOL2$log_returns)
+
+SOL2$ticker <- "SOL"
+
+
+#XRP2
+XRP2 <- read.csv("/Users/melvinzhang/Downloads/CControls/XRP_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(XRP2)[1] <- "date"
+
+# Dates to BTCeric
+XRP2$date <- ymd_hms(XRP2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XRP2 <- XRP2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+XRP2$log_returns <- log(XRP2$close / (lag(XRP2$close, n = 1)))
+XRP2$log_returns <- ifelse(is.na(XRP2$log_returns), 0, XRP2$log_returns)
+
+XRP2$ticker <- "XRP"
+
+
+#DOGE2
+DOGE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Dogecoin_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(DOGE2)[1] <- "date"
+
+# Dates to BTCeric
+DOGE2$date <- ymd_hms(DOGE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+DOGE2 <- DOGE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+DOGE2$log_returns <- log(DOGE2$close / (lag(DOGE2$close, n = 1)))
+DOGE2$log_returns <- ifelse(is.na(DOGE2$log_returns), 0, DOGE2$log_returns)
+
+DOGE2$ticker <- "DOGE"
+
+
+#TON2
+TON2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Toncoin_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(TON2)[1] <- "date"
+
+# Dates to BTCeric
+TON2$date <- ymd_hms(TON2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+TON2 <- TON2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+TON2$log_returns <- log(TON2$close / (lag(TON2$close, n = 1)))
+TON2$log_returns <- ifelse(is.na(TON2$log_returns), 0, TON2$log_returns)
+
+TON2$ticker <- "TON"
+
+
+#ADA2
+ADA2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Cardano_01_05_2023-30_04_2024_historical_data_coinmarketcap (2).csv"
+, sep=";")
+
+colnames(ADA2)[1] <- "date"
+
+# Dates to BTCeric
+ADA2$date <- ymd_hms(ADA2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ADA2 <- ADA2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+ADA2$log_returns <- log(ADA2$close / (lag(ADA2$close, n = 1)))
+ADA2$log_returns <- ifelse(is.na(ADA2$log_returns), 0, ADA2$log_returns)
+
+ADA2$ticker <- "ADA"
+
+
+#SHIB2
+SHIB2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Shiba Inu_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(SHIB2)[1] <- "date"
+
+# Dates to BTCeric
+SHIB2$date <- ymd_hms(SHIB2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SHIB2 <- SHIB2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+SHIB2$log_returns <- log(SHIB2$close / (lag(SHIB2$close, n = 1)))
+SHIB2$log_returns <- ifelse(is.na(SHIB2$log_returns), 0, SHIB2$log_returns)
+
+SHIB2$ticker <- "SHIB"
+
+
+#AVAX2
+AVAX2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Avalanche_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(AVAX2)[1] <- "date"
+
+# Dates to BTCeric
+AVAX2$date <- ymd_hms(AVAX2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+AVAX2 <- AVAX2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+AVAX2$log_returns <- log(AVAX2$close / (lag(AVAX2$close, n = 1)))
+AVAX2$log_returns <- ifelse(is.na(AVAX2$log_returns), 0, AVAX2$log_returns)
+
+AVAX2$ticker <- "AVAX"
+
+
+#TRON2
+TRON2 <- read.csv("/Users/melvinzhang/Downloads/CControls/TRON_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(TRON2)[1] <- "date"
+
+# Dates to numeric
+TRON2$date <- ymd_hms(TRON2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+TRON2 <- TRON2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calcuBTCions
+TRON2$log_returns <- log(TRON2$close / (lag(TRON2$close, n = 1)))
+TRON2$log_returns <- ifelse(is.na(TRON2$log_returns), 0, TRON2$log_returns)
+
+TRON2$ticker <- "TRON"
+
+
+#DOT2
+DOT2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Polkadot_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(DOT2)[1] <- "date"
+
+# Dates to numeric
+DOT2$date <- ymd_hms(DOT2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+DOT2 <- DOT2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+DOT2$log_returns <- log(DOT2$close / (lag(DOT2$close, n = 1)))
+DOT2$log_returns <- ifelse(is.na(DOT2$log_returns), 0, DOT2$log_returns)
+
+DOT2$ticker <- "DOT"
+
+
+#LINK2
+LINK2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Chainlink_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(LINK2)[1] <- "date"
+
+# Dates to numeric
+LINK2$date <- ymd_hms(LINK2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LINK2 <- LINK2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LINK2$log_returns <- log(LINK2$close / (lag(LINK2$close, n = 1)))
+LINK2$log_returns <- ifelse(is.na(LINK2$log_returns), 0, LINK2$log_returns)
+
+LINK2$ticker <- "LINK"
+
+
+#MATIC2
+MATIC2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Polygon_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(MATIC2)[1] <- "date"
+
+# Dates to numeric
+MATIC2$date <- ymd_hms(MATIC2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+MATIC2 <- MATIC2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+MATIC2$log_returns <- log(MATIC2$close / (lag(MATIC2$close, n = 1)))
+MATIC2$log_returns <- ifelse(is.na(MATIC2$log_returns), 0, MATIC2$log_returns)
+
+MATIC2$ticker <- "MATIC"
+
+
+
+#LTC2
+LTC2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Litecoin_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(LTC2)[1] <- "date"
+
+# Dates to numeric
+LTC2$date <- ymd_hms(LTC2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LTC2 <- LTC2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LTC2$log_returns <- log(LTC2$close / (lag(LTC2$close, n = 1)))
+LTC2$log_returns <- ifelse(is.na(LTC2$log_returns), 0, LTC2$log_returns)
+
+LTC2$ticker <- "LTC"
+
+
+
+#ICP2
+ICP2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Internet Computer_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ICP2)[1] <- "date"
+
+# Dates to numeric
+ICP2$date <- ymd_hms(ICP2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ICP2 <- ICP2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ICP2$log_returns <- log(ICP2$close / (lag(ICP2$close, n = 1)))
+ICP2$log_returns <- ifelse(is.na(ICP2$log_returns), 0, ICP2$log_returns)
+
+ICP2$ticker <- "ICP"
+
+
+#LEO2
+LEO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/UNUS SED LEO_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(LEO2)[1] <- "date"
+
+# Dates to numeric
+LEO2$date <- ymd_hms(LEO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LEO2 <- LEO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LEO2$log_returns <- log(LEO2$close / (lag(LEO2$close, n = 1)))
+LEO2$log_returns <- ifelse(is.na(LEO2$log_returns), 0, LEO2$log_returns)
+
+LEO2$ticker <- "LEO"
+
+
+#UNI2
+UNI2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Uniswap_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(UNI2)[1] <- "date"
+
+# Dates to numeric
+UNI2$date <- ymd_hms(UNI2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+UNI2 <- UNI2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+UNI2$log_returns <- log(UNI2$close / (lag(UNI2$close, n = 1)))
+UNI2$log_returns <- ifelse(is.na(UNI2$log_returns), 0, UNI2$log_returns)
+
+UNI2$ticker <- "UNI"
+
+
+#APT2
+APT2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Aptos_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(APT2)[1] <- "date"
+
+# Dates to numeric
+APT2$date <- ymd_hms(APT2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+APT2 <- APT2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+APT2$log_returns <- log(APT2$close / (lag(APT2$close, n = 1)))
+APT2$log_returns <- ifelse(is.na(APT2$log_returns), 0, APT2$log_returns)
+
+APT2$ticker <- "APT"
+
+
+#CRO2
+CRO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Cronos_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(CRO2)[1] <- "date"
+
+# Dates to numeric
+CRO2$date <- ymd_hms(CRO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+CRO2 <- CRO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+CRO2$log_returns <- log(CRO2$close / (lag(CRO2$close, n = 1)))
+CRO2$log_returns <- ifelse(is.na(CRO2$log_returns), 0, CRO2$log_returns)
+
+CRO2$ticker <- "CRO"
+
+
+#HBAR2
+HBAR2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Hedera_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(HBAR2)[1] <- "date"
+
+# Dates to numeric
+HBAR2$date <- ymd_hms(HBAR2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+HBAR2 <- HBAR2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+HBAR2$log_returns <- log(HBAR2$close / (lag(HBAR2$close, n = 1)))
+HBAR2$log_returns <- ifelse(is.na(HBAR2$log_returns), 0, HBAR2$log_returns)
+
+HBAR2$ticker <- "HBAR"
+
+
+#STX2
+STX2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Stacks_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(STX2)[1] <- "date"
+
+# Dates to numeric
+STX2$date <- ymd_hms(STX2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+STX2 <- STX2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+STX2$log_returns <- log(STX2$close / (lag(STX2$close, n = 1)))
+STX2$log_returns <- ifelse(is.na(STX2$log_returns), 0, STX2$log_returns)
+
+STX2$ticker <- "STX"
+
+
+#MNT2
+MNT2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Mantle_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(MNT2)[1] <- "date"
+
+# Dates to numeric
+MNT2$date <- ymd_hms(MNT2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+MNT2 <- MNT2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+MNT2$log_returns <- log(MNT2$close / (lag(MNT2$close, n = 1)))
+MNT2$log_returns <- ifelse(is.na(MNT2$log_returns), 0, MNT2$log_returns)
+
+MNT2$ticker <- "MNT"
+
+
+#FIL2
+FIL2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Filecoin_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(FIL2)[1] <- "date"
+
+# Dates to numeric
+FIL2$date <- ymd_hms(FIL2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+FIL2 <- FIL2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+FIL2$log_returns <- log(FIL2$close / (lag(FIL2$close, n = 1)))
+FIL2$log_returns <- ifelse(is.na(FIL2$log_returns), 0, FIL2$log_returns)
+
+FIL2$ticker <- "FIL"
+
+
+
+#XLM2
+XLM2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Stellar_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(XLM2)[1] <- "date"
+
+# Dates to numeric
+XLM2$date <- ymd_hms(XLM2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XLM2 <- XLM2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+XLM2$log_returns <- log(XLM2$close / (lag(XLM2$close, n = 1)))
+XLM2$log_returns <- ifelse(is.na(XLM2$log_returns), 0, XLM2$log_returns)
+
+XLM2$ticker <- "XLM"
+
+
+
+#ATOM2
+ATOM2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Cosmos_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ATOM2)[1] <- "date"
+
+# Dates to numeric
+ATOM2$date <- ymd_hms(ATOM2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ATOM2 <- ATOM2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ATOM2$log_returns <- log(ATOM2$close / (lag(ATOM2$close, n = 1)))
+ATOM2$log_returns <- ifelse(is.na(ATOM2$log_returns), 0, ATOM2$log_returns)
+
+ATOM2$ticker <- "ATOM"
+
+
+
+#OKB2
+OKB2 <- read.csv("/Users/melvinzhang/Downloads/CControls/OKB_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(OKB2)[1] <- "date"
+
+# Dates to numeric
+OKB2$date <- ymd_hms(OKB2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+OKB2 <- OKB2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+OKB2$log_returns <- log(OKB2$close / (lag(OKB2$close, n = 1)))
+OKB2$log_returns <- ifelse(is.na(OKB2$log_returns), 0, OKB2$log_returns)
+
+OKB2$ticker <- "OKB"
+
+
+#PEPE2
+PEPE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Pepe_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(PEPE2)[1] <- "date"
+
+# Dates to numeric
+PEPE2$date <- ymd_hms(PEPE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+PEPE2 <- PEPE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+PEPE2$log_returns <- log(PEPE2$close / (lag(PEPE2$close, n = 1)))
+PEPE2$log_returns <- ifelse(is.na(PEPE2$log_returns), 0, PEPE2$log_returns)
+
+PEPE2$ticker <- "PEPE"
+
+
+#IMX2
+IMX2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Immutable_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(IMX2)[1] <- "date"
+
+# Dates to numeric
+IMX2$date <- ymd_hms(IMX2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+IMX2 <- IMX2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+IMX2$log_returns <- log(IMX2$close / (lag(IMX2$close, n = 1)))
+IMX2$log_returns <- ifelse(is.na(IMX2$log_returns), 0, IMX2$log_returns)
+
+IMX2$ticker <- "IMX"
+
+
+#VET2
+VET2 <- read.csv("/Users/melvinzhang/Downloads/CControls/VeChain_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(VET2)[1] <- "date"
+
+# Dates to numeric
+VET2$date <- ymd_hms(VET2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+VET2 <- VET2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+VET2$log_returns <- log(VET2$close / (lag(VET2$close, n = 1)))
+VET2$log_returns <- ifelse(is.na(VET2$log_returns), 0, VET2$log_returns)
+
+VET2$ticker <- "VET"
+
+
+#ARB2
+ARB2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Arbitrum_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ARB2)[1] <- "date"
+
+# Dates to numeric
+ARB2$date <- ymd_hms(ARB2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ARB2 <- ARB2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ARB2$log_returns <- log(ARB2$close / (lag(ARB2$close, n = 1)))
+ARB2$log_returns <- ifelse(is.na(ARB2$log_returns), 0, ARB2$log_returns)
+
+ARB2$ticker <- "ARB"
+
+
+#KAS2
+KAS2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Kaspa_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(KAS2)[1] <- "date"
+
+# Dates to numeric
+KAS2$date <- ymd_hms(KAS2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+KAS2 <- KAS2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+KAS2$log_returns <- log(KAS2$close / (lag(KAS2$close, n = 1)))
+KAS2$log_returns <- ifelse(is.na(KAS2$log_returns), 0, KAS2$log_returns)
+
+KAS2$ticker <- "KAS"
+
+
+#WIF2
+WIF2 <- read.csv("/Users/melvinzhang/Downloads/CControls/dogwifhat_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(WIF2)[1] <- "date"
+
+# Dates to numeric
+WIF2$date <- ymd_hms(WIF2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+WIF2 <- WIF2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+WIF2$log_returns <- log(WIF2$close / (lag(WIF2$close, n = 1)))
+WIF2$log_returns <- ifelse(is.na(WIF2$log_returns), 0, WIF2$log_returns)
+
+WIF2$ticker <- "WIF"
+
+
+#MKR2
+MKR2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Maker_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(MKR2)[1] <- "date"
+
+# Dates to numeric
+MKR2$date <- ymd_hms(MKR2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+MKR2 <- MKR2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+MKR2$log_returns <- log(MKR2$close / (lag(MKR2$close, n = 1)))
+MKR2$log_returns <- ifelse(is.na(MKR2$log_returns), 0, MKR2$log_returns)
+
+MKR2$ticker <- "MKR"
+
+
+#OP2
+OP2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Optimism_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(OP2)[1] <- "date"
+
+# Dates to numeric
+OP2$date <- ymd_hms(OP2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+OP2 <- OP2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+OP2$log_returns <- log(OP2$close / (lag(OP2$close, n = 1)))
+OP2$log_returns <- ifelse(is.na(OP2$log_returns), 0, OP2$log_returns)
+
+OP2$ticker <- "OP"
+
+
+#XMR2
+XMR2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Monero_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(XMR2)[1] <- "date"
+
+# Dates to numeric
+XMR2$date <- ymd_hms(XMR2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+XMR2 <- XMR2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+XMR2$log_returns <- log(XMR2$close / (lag(XMR2$close, n = 1)))
+XMR2$log_returns <- ifelse(is.na(XMR2$log_returns), 0, XMR2$log_returns)
+
+XMR2$ticker <- "XMR"
+
+
+#AR2
+AR2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Arweave_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(AR2)[1] <- "date"
+
+# Dates to numeric
+AR2$date <- ymd_hms(AR2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+AR2 <- AR2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+AR2$log_returns <- log(AR2$close / (lag(AR2$close, n = 1)))
+AR2$log_returns <- ifelse(is.na(AR2$log_returns), 0, AR2$log_returns)
+
+AR2$ticker <- "AR"
+
+
+
+#FTM2
+FTM2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Fantom_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(FTM2)[1] <- "date"
+
+# Dates to numeric
+FTM2$date <- ymd_hms(FTM2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+FTM2 <- FTM2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+FTM2$log_returns <- log(FTM2$close / (lag(FTM2$close, n = 1)))
+FTM2$log_returns <- ifelse(is.na(FTM2$log_returns), 0, FTM2$log_returns)
+
+FTM2$ticker <- "FTM"
+
+
+
+#LDO2
+LDO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Lido DAO_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(LDO2)[1] <- "date"
+
+# Dates to numeric
+LDO2$date <- ymd_hms(LDO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+LDO2 <- LDO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+LDO2$log_returns <- log(LDO2$close / (lag(LDO2$close, n = 1)))
+LDO2$log_returns <- ifelse(is.na(LDO2$log_returns), 0, LDO2$log_returns)
+
+LDO2$ticker <- "LDO"
+
+
+#TIA2
+TIA2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Celestia_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(TIA2)[1] <- "date"
+
+# Dates to numeric
+TIA2$date <- ymd_hms(TIA2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+TIA2 <- TIA2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+TIA2$log_returns <- log(TIA2$close / (lag(TIA2$close, n = 1)))
+TIA2$log_returns <- ifelse(is.na(TIA2$log_returns), 0, TIA2$log_returns)
+
+TIA2$ticker <- "TIA"
+
+
+#CORE2
+CORE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Core_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(CORE2)[1] <- "date"
+
+# Dates to numeric
+CORE2$date <- ymd_hms(CORE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+CORE2 <- CORE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+CORE2$log_returns <- log(CORE2$close / (lag(CORE2$close, n = 1)))
+CORE2$log_returns <- ifelse(is.na(CORE2$log_returns), 0, CORE2$log_returns)
+
+CORE2$ticker <- "CORE"
+
+
+#SEI2
+SEI2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Sei_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(SEI2)[1] <- "date"
+
+# Dates to numeric
+SEI2$date <- ymd_hms(SEI2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SEI2 <- SEI2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+SEI2$log_returns <- log(SEI2$close / (lag(SEI2$close, n = 1)))
+SEI2$log_returns <- ifelse(is.na(SEI2$log_returns), 0, SEI2$log_returns)
+
+SEI2$ticker <- "SEI"
+
+
+
+#RUNE2
+RUNE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/THORChain_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(RUNE2)[1] <- "date"
+
+# Dates to numeric
+RUNE2$date <- ymd_hms(RUNE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+RUNE2 <- RUNE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+RUNE2$log_returns <- log(RUNE2$close / (lag(RUNE2$close, n = 1)))
+RUNE2$log_returns <- ifelse(is.na(RUNE2$log_returns), 0, RUNE2$log_returns)
+
+RUNE2$ticker <- "RUNE"
+
+
+#BGB2
+BGB2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Bitget Token_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(BGB2)[1] <- "date"
+
+# Dates to numeric
+BGB2$date <- ymd_hms(BGB2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BGB2 <- BGB2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+BGB2$log_returns <- log(BGB2$close / (lag(BGB2$close, n = 1)))
+BGB2$log_returns <- ifelse(is.na(BGB2$log_returns), 0, BGB2$log_returns)
+
+BGB2$ticker <- "BGB"
+
+
+
+#BONK2
+BONK2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Bonk_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(BONK2)[1] <- "date"
+
+# Dates to numeric
+BONK2$date <- ymd_hms(BONK2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BONK2 <- BONK2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+BONK2$log_returns <- log(BONK2$close / (lag(BONK2$close, n = 1)))
+BONK2$log_returns <- ifelse(is.na(BONK2$log_returns), 0, BONK2$log_returns)
+
+BONK2$ticker <- "BONK"
+
+
+#FLOKI2
+FLOKI2 <- read.csv("/Users/melvinzhang/Downloads/CControls/FLOKI_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(FLOKI2)[1] <- "date"
+
+# Dates to numeric
+FLOKI2$date <- ymd_hms(FLOKI2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+FLOKI2 <- FLOKI2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+FLOKI2$log_returns <- log(FLOKI2$close / (lag(FLOKI2$close, n = 1)))
+FLOKI2$log_returns <- ifelse(is.na(FLOKI2$log_returns), 0, FLOKI2$log_returns)
+
+FLOKI2$ticker <- "FLOKI"
+
+
+#SUI2
+SUI2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Sui_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(SUI2)[1] <- "date"
+
+# Dates to numeric
+SUI2$date <- ymd_hms(SUI2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+SUI2 <- SUI2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+SUI2$log_returns <- log(SUI2$close / (lag(SUI2$close, n = 1)))
+SUI2$log_returns <- ifelse(is.na(SUI2$log_returns), 0, SUI2$log_returns)
+
+
+SUI2$ticker <- "SUI"
+
+
+#ALGO2
+ALGO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Algorand_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(ALGO2)[1] <- "date"
+
+# Dates to numeric
+ALGO2$date <- ymd_hms(ALGO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ALGO2 <- ALGO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ALGO2$log_returns <- log(ALGO2$close / (lag(ALGO2$close, n = 1)))
+ALGO2$log_returns <- ifelse(is.na(ALGO2$log_returns), 0, ALGO2$log_returns)
+
+ALGO2$ticker <- "ALGO"
+
+
+#GALA2
+GALA2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Gala_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(GALA2)[1] <- "date"
+
+# Dates to numeric
+GALA2$date <- ymd_hms(GALA2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+GALA2 <- GALA2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+GALA2$log_returns <- log(GALA2$close / (lag(GALA2$close, n = 1)))
+GALA2$log_returns <- ifelse(is.na(GALA2$log_returns), 0, GALA2$log_returns)
+
+GALA2$ticker <- "GALA"
+
+
+#JUP2
+JUP2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Jupiter_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(JUP2)[1] <- "date"
+
+# Dates to numeric
+JUP2$date <- ymd_hms(JUP2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+JUP2 <- JUP2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+JUP2$log_returns <- log(JUP2$close / (lag(JUP2$close, n = 1)))
+JUP2$log_returns <- ifelse(is.na(JUP2$log_returns), 0, JUP2$log_returns)
+
+JUP2$ticker <- "JUP"
+
+
+#FLOW2
+FLOW2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Flow_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv"
+, sep=";")
+
+colnames(FLOW2)[1] <- "date"
+
+# Dates to numeric
+FLOW2$date <- ymd_hms(FLOW2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+FLOW2 <- FLOW2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+FLOW2$log_returns <- log(FLOW2$close / (lag(FLOW2$close, n = 1)))
+FLOW2$log_returns <- ifelse(is.na(FLOW2$log_returns), 0, FLOW2$log_returns)
+
+FLOW2$ticker <- "FLOW"
+
+
+#NEO2
+NEO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Neo_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(NEO2)[1] <- "date"
+
+# Dates to numeric
+NEO2$date <- ymd_hms(NEO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+NEO2 <- NEO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+NEO2$log_returns <- log(NEO2$close / (lag(NEO2$close, n = 1)))
+NEO2$log_returns <- ifelse(is.na(NEO2$log_returns), 0, NEO2$log_returns)
+
+NEO2$ticker <- "NEO2"
+
+
+#AAVE2
+AAVE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Aave_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(AAVE2)[1] <- "date"
+
+# Dates to numeric
+AAVE2$date <- ymd_hms(AAVE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+AAVE2 <- AAVE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+AAVE2$log_returns <- log(AAVE2$close / (lag(AAVE2$close, n = 1)))
+AAVE2$log_returns <- ifelse(is.na(AAVE2$log_returns), 0, AAVE2$log_returns)
+
+AAVE2$ticker <- "AAVE"
+
+
+#BEAM2
+BEAM2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Beam_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(BEAM2)[1] <- "date"
+
+# Dates to numeric
+BEAM2$date <- ymd_hms(BEAM2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+BEAM2 <- BEAM2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+BEAM2$log_returns <- log(BEAM2$close / (lag(BEAM2$close, n = 1)))
+BEAM2$log_returns <- ifelse(is.na(BEAM2$log_returns), 0, BEAM2$log_returns)
+
+BEAM2$ticker <- "BEAM"
+
+
+#QNT2
+QNT2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Quant_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(QNT2)[1] <- "date"
+
+# Dates to numeric
+QNT2$date <- ymd_hms(QNT2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+QNT2 <- QNT2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+QNT2$log_returns <- log(QNT2$close / (lag(QNT2$close, n = 1)))
+QNT2$log_returns <- ifelse(is.na(QNT2$log_returns), 0, QNT2$log_returns)
+
+QNT2$ticker <- "QNT"
+
+
+#PENDLE2
+PENDLE2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Pendle_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(PENDLE2)[1] <- "date"
+
+# Dates to numeric
+PENDLE2$date <- ymd_hms(PENDLE2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+PENDLE2 <- PENDLE2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+PENDLE2$log_returns <- log(PENDLE2$close / (lag(PENDLE2$close, n = 1)))
+PENDLE2$log_returns <- ifelse(is.na(PENDLE2$log_returns), 0, PENDLE2$log_returns)
+
+PENDLE2$ticker <- "PENDLE"
+
+
+#ONDO2
+ONDO2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Ondo_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(ONDO2)[1] <- "date"
+
+# Dates to numeric
+ONDO2$date <- ymd_hms(ONDO2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+ONDO2 <- ONDO2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+ONDO2$log_returns <- log(ONDO2$close / (lag(ONDO2$close, n = 1)))
+ONDO2$log_returns <- ifelse(is.na(ONDO2$log_returns), 0, ONDO2$log_returns)
+
+ONDO2$ticker <- "ONDO"
+
+
+#CHZ2
+CHZ2 <- read.csv("/Users/melvinzhang/Downloads/CControls/Chiliz_01_05_2023-30_04_2024_historical_data_coinmarketcap.csv", sep=";")
+
+colnames(CHZ2)[1] <- "date"
+
+# Dates to numeric
+CHZ2$date <- ymd_hms(CHZ2$date, tz="UTC")
+
+# Filter to get timeframe 2023-10-01 - 2024-03-31
+CHZ2 <- CHZ2 %>% 
+  filter(between(date, as.Date("2023-10-01"), as.Date("2024-03-31")))
+
+# Log price calculations
+CHZ2$log_returns <- log(CHZ2$close / (lag(CHZ2$close, n = 1)))
+CHZ2$log_returns <- ifelse(is.na(CHZ2$log_returns), 0, CHZ2$log_returns)
+
+CHZ2$ticker <- "CHZ"
+
+
+```
+
+```{r echo=F. error=F, message=F, results='asis', verbose=T}
+
+#Binding all AI and big data coins
+all_coin_control <- rbind(AAVE2, ADA2, ALGO2, APT2, AR2, ARB2, ATOM2, AVAX2, BEAM2, BGB2, BNB2, BONK2, BTC2, CHZ2, CORE2, CRO2, DOGE2, DOT2, ETH2, FIL2, FLOKI2, FLOW2, FTM2, GALA2, HBAR2, ICP2, IMX2, JUP2, KAS2, LDO2, LEO2, LTC2, MATIC2, MKR2, MNT2, NEO2, OKB2, OP2, PENDLE2, PEPE2, QNT2, RUNE2, SEI2, SHIB2, SOL2, STX2, SUI2, TON2, TRON2, UNI2, VET2, XLM2, XMR2, XRP2)
+
+#Add column before or after GEMINI launch
+all_coin_control <- all_coin_control %>%
+                  mutate(gemini_exposure = ifelse(date < as.Date("2023-12-03"), 0, 1))
+
+#Counting all dataframes/coins
+# List all objects in the global environment
+objects <- ls()
+
+# Filter out only dataframes
+dataframes <- objects[sapply(objects, function(x) is.data.frame(get(x)))]
+
+# Count the number of dataframes
+num_dataframes <- length(dataframes)
+
+# Print the number of dataframes
+print(num_dataframes)
+
+#Save data control coins Coinmarketcap
+saveRDS(all_coin_control, file="all_coin_control.Rdata")
+
+
+```
+
+```{r echo=F, error=F, message=F, results='asis', verbose=T}
+
+#Load SP Data Large and Mega Cap
+large_sp <- read.csv("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/SPControls/SP LargeCap.csv", header=T)
+large_sp <- large_sp[7:267, 1:2]
+names(large_sp)[names(large_sp) == "X"] <- "date"
+names(large_sp)[names(large_sp) == "X.1"] <- "capindex"
+
+mega_sp <- read.csv("/Users/melvinzhang/Documents/DSMA ESE/THESIS/R THESIS/DATA/SPControls/SP MegaCap.csv", header=T)
+mega_sp <- mega_sp[7:267, 1:2]
+names(mega_sp)[names(mega_sp) == "X"] <- "date"
+names(mega_sp)[names(mega_sp) == "X.1"] <- "capindex"
+
+#Separating each by 1 and 0 for mega and large
+large_sp$mega <- 0
+mega_sp$mega <- 1
+
+#Set to numeric 
+large_sp$capindex <- as.numeric(large_sp$capindex)
+mega_sp$capindex <- as.numeric(mega_sp$capindex)
+
+
+#Log price calculations
+large_sp$log_returns <- log(large_sp$capindex / (lag(large_sp$capindex, n = 1)))
+large_sp$log_returns <- ifelse(is.na(large_sp$log_returns), 0, large_sp$log_returns)
+
+mega_sp$log_returns <- log(mega_sp$capindex / (lag(mega_sp$capindex, n = 1)))
+mega_sp$log_returns <- ifelse(is.na(mega_sp$log_returns), 0, mega_sp$log_returns)
+
+#Binding both large and mega
+
+all_indexes_sp <- rbind(large_sp, mega_sp)
+
+#Save as r.data
+saveRDS(all_indexes_sp, file="all_indexes_sp.Rdata")
+saveRDS(large_sp, file="large_sp.Rdata")
+saveRDS(mega_sp, file="mega_sp.Rdata")
+
+```
